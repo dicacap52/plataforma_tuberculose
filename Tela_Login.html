@@ -1,0 +1,39 @@
+<div id="telaLogin" class="split-layout">
+
+  <!-- PAINEL ESQUERDO: Identidade visual -->
+  <div class="left-panel">
+    <div class="top-tag">SMS · TUBERCULOSE</div>
+    <span class="badge">Sistema de Registros v1.0</span>
+    <h1>Controle de<br><span>Tratamentos</span></h1>
+    <p>Plataforma integrada para registro e acompanhamento dos livros de tuberculose da rede municipal de saúde.</p>
+    <span class="footer-text">Secretaria Municipal de Saúde</span>
+  </div>
+
+  <!-- PAINEL DIREITO: Formulário de login -->
+  <div class="right-panel">
+    <div class="login-container">
+      <h2>Acesso ao Sistema</h2>
+      <p>Digite seu CPF para entrar</p>
+
+      <div class="form-group">
+        <label for="cpfInput">CPF do Profissional</label>
+        <input
+          type="text"
+          id="cpfInput"
+          maxlength="14"
+          placeholder="000.000.000-00"
+          oninput="aplicarMascaraCPF(this)"
+          onkeydown="if(event.key==='Enter') solicitarAcesso()"
+          autocomplete="off"
+        >
+      </div>
+
+      <button id="btnEntrar" class="btn-login" onclick="solicitarAcesso()">
+        Entrar no Sistema
+      </button>
+
+      <p id="msgErro" class="feedback-msg"></p>
+    </div>
+  </div>
+
+</div>

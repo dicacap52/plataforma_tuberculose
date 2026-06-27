@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "google-sheets": {
+      "command": "npx",
+      "args": ["-y", "mcp-gsheets@latest"],
+      "env": {
+        "GOOGLE_PROJECT_ID": "SEU_PROJECT_ID",
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:/Users/Alex Jr/Desktop/Projetos em Andamento/apps_scripts/Tuberculose/.cursor/credentials/service-account.json"
+      }
+    },
+    "google-drive": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gdrive"],
+      "env": {
+        "GDRIVE_OAUTH_PATH": "C:/Users/Alex Jr/Desktop/Projetos em Andamento/apps_scripts/Tuberculose/.cursor/credentials/gcp-oauth.keys.json",
+        "GDRIVE_CREDENTIALS_PATH": "C:/Users/Alex Jr/Desktop/Projetos em Andamento/apps_scripts/Tuberculose/.cursor/credentials/gdrive-credentials.json"
+      }
+    },
+    "clasp": {
+      "command": "npx",
+      "args": ["-y", "@google/clasp", "mcp"]
+    }
+  }
+}

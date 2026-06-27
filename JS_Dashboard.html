@@ -1,0 +1,43 @@
+<script>
+  const IDS_TELAS_LIVROS = ['telaLivroVerde', 'telaLivroAmarelo', 'telaLivroAmareloILTB', 'telaLivroAzul'];
+
+  function ocultarTelasLivros() {
+    IDS_TELAS_LIVROS.forEach(function(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
+
+  function encerrarSessao() {
+    sessaoAtual = null;
+    ocultarTelasLivros();
+    document.getElementById('telaDashboard').style.display = 'none';
+    document.getElementById('telaLogin').style.display = 'flex';
+  }
+
+  function abrirModulo(nomeDoLivroDestino) {
+    if (!sessaoAtual) return;
+
+    document.getElementById('telaDashboard').style.display = 'none';
+    ocultarTelasLivros();
+
+    if (nomeDoLivroDestino === 'Livro Verde - Tratamento') {
+      inicializarMeses();
+      document.getElementById('telaLivroVerde').style.display = 'block';
+    }
+    else if (nomeDoLivroDestino === 'Livro Amarelo - Contatos') {
+      document.getElementById('telaLivroAmarelo').style.display = 'block';
+    }
+    else if (nomeDoLivroDestino === 'Livro Amarelo - ILTB') {
+      document.getElementById('telaLivroAmareloILTB').style.display = 'block';
+    }
+    else if (nomeDoLivroDestino === 'Livro Azul - DR-TB') {
+      document.getElementById('telaLivroAzul').style.display = 'block';
+    }
+  }
+
+  function voltarAoDashboard() {
+    ocultarTelasLivros();
+    document.getElementById('telaDashboard').style.display = 'block';
+  }
+</script>

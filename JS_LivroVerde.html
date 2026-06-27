@@ -1,0 +1,284 @@
+<script>
+  let livroVerdeState = {
+    modo: null,
+    linhaPlanilha: null,
+    sinanValidado: false,
+    buscando: false
+  };
+
+  const CAMPOS_LIVRO_VERDE = [
+    'prontuario', 'nomePaciente', 'idade', 'sexo',
+    'bac1', 'bac2', 'trm', 'cultura', 'culturaTS', 'rx', 'hiv',
+    'formaClinica', 'tipoEntrada', 'esquema', 'dataInicio', 'tdo', 'tarv',
+    'motivoEnc', 'dataEnc', 'contIdent', 'contExam', 'obs'
+  ];
+
+  function inicializarMeses() {
+    const container = document.getElementById('containerMeses');
+    container.innerHTML = '';
+    for (let i = 1; i <= 12; i++) {
+      container.innerHTML += `<input type="text" id="mes${i}" placeholder="Mês ${i}" class="form-input campo-livro-verde campo-mes" disabled>`;
+    }
+    resetFormLivroVerde();
+  }
+
+  function resetFormLivroVerde() {
+    livroVerdeState = { modo: null, linhaPlanilha: null, sinanValidado: false, buscando: false };
+
+    document.getElementById('sinan').value = '';
+    document.getElementById('sinan').disabled = false;
+    document.getElementById('sinan').classList.remove('campo-bloqueado');
+
+    CAMPOS_LIVRO_VERDE.forEach(function(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = '';
+      el.disabled = true;
+      el.classList.remove('campo-bloqueado');
+    });
+
+    for (let i = 1; i <= 12; i++) {
+      const el = document.getElementById('mes' + i);
+      if (!el) continue;
+      el.value = '';
+      el.disabled = true;
+      el.classList.remove('campo-bloqueado');
+    }
+
+    mostrarMsgSinan('', '');
+    document.getElementById('btnSalvarLivroVerde').disabled = true;
+  }
+
+  function mostrarMsgSinan(texto, tipo) {
+    const msg = document.getElementById('msgSinan');
+    msg.textContent = texto;
+    msg.className = 'feedback-msg';
+    if (!texto) {
+      msg.style.display = 'none';
+      return;
+    }
+    msg.style.display = 'block';
+    if (tipo === 'erro') msg.classList.add('feedback-error');
+    else if (tipo === 'ok') {
+      msg.style.backgroundColor = '#DCFCE7';
+      msg.style.color = '#166534';
+      msg.style.border = '1px solid #86EFAC';
+    } else if (tipo === 'info') {
+      msg.style.backgroundColor = '#EFF6FF';
+      msg.style.color = '#1D4ED8';
+      msg.style.border = '1px solid #93C5FD';
+    }
+  }
+
+  function definirEstadoCampo(id, valor, bloqueado) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = valor != null ? valor : '';
+    el.disabled = bloqueado;
+    el.classList.toggle('campo-bloqueado', bloqueado);
+  }
+
+  function aplicarCamposLivroVerde(dados, preenchidos, sinanSomenteLeitura) {
+    CAMPOS_LIVRO_VERDE.forEach(function(id) {
+      if (id === 'obs') {
+        definirEstadoCampo(id, dados[id] || '', false);
+        return;
+      }
+      const bloqueado = !!preenchidos[id];
+      definirEstadoCampo(id, dados[id] || '', bloqueado);
+    });
+
+    for (let i = 1; i <= 12; i++) {
+      const chave = 'mes' + i;
+      const bloqueado = !!preenchidos[chave];
+      definirEstadoCampo(chave, (dados.meses && dados.meses[i - 1]) || '', bloqueado);
+    }
+
+    definirEstadoCampo('sinan', dados.sinan || document.getElementById('sinan').value, sinanSomenteLeitura);
+    document.getElementById('btnSalvarLivroVerde').disabled = false;
+  }
+
+  function habilitarNovoRegistro(sinan) {
+    const dadosVazios = { sinan: sinan, meses: [] };
+    const preenchidos = { sinan: true };
+
+    CAMPOS_LIVRO_VERDE.forEach(function(id) { preenchidos[id] = false; });
+    for (let i = 1; i <= 12; i++) preenchidos['mes' + i] = false;
+
+    aplicarCamposLivroVerde(dadosVazios, preenchidos, true);
+    livroVerdeState = { modo: 'novo', linhaPlanilha: null, sinanValidado: true, buscando: false };
+    mostrarMsgSinan('SINAN não encontrado. Preencha os dados para cadastrar um novo registro.', 'info');
+    document.getElementById('prontuario').focus();
+  }
+
+  function buscarSinanLivroVerde(forcar) {
+    if (livroVerdeState.buscando) return;
+
+    const sinan = document.getElementById('sinan').value.trim();
+    if (!sinan) {
+      resetFormLivroVerde();
+      return;
+    }
+
+    if (!forcar && livroVerdeState.sinanValidado && livroVerdeState.modo) return;
+
+    livroVerdeState.buscando = true;
+    mostrarMsgSinan('Buscando SINAN na base de dados...', 'info');
+    document.getElementById('sinan').disabled = true;
+
+    google.script.run
+      .withSuccessHandler(function(resposta) {
+        livroVerdeState.buscando = false;
+        document.getElementById('sinan').disabled = false;
+
+        if (!resposta.encontrado) {
+          const cadastrar = confirm('SINAN "' + sinan + '" não encontrado.\n\nDeseja cadastrar um novo registro?');
+          if (cadastrar) {
+            habilitarNovoRegistro(sinan);
+          } else {
+            resetFormLivroVerde();
+            document.getElementById('sinan').focus();
+          }
+          return;
+        }
+
+        livroVerdeState = {
+          modo: 'existente',
+          linhaPlanilha: resposta.linha,
+          sinanValidado: true,
+          buscando: false
+        };
+
+        aplicarCamposLivroVerde(resposta.dados, resposta.preenchidos, true);
+        mostrarMsgSinan('SINAN encontrado. Campos já preenchidos estão bloqueados; complete apenas os em branco.', 'ok');
+      })
+      .withFailureHandler(function(erro) {
+        livroVerdeState.buscando = false;
+        document.getElementById('sinan').disabled = false;
+        mostrarMsgSinan('Erro na busca: ' + erro.message, 'erro');
+        console.error(erro);
+      })
+      .buscarRegistroPorSinan(sinan);
+  }
+
+  function coletarDadosFormularioLivroVerde() {
+    return {
+      sinan: document.getElementById('sinan').value.trim(),
+      prontuario: document.getElementById('prontuario').value,
+      nomePaciente: document.getElementById('nomePaciente').value,
+      idade: document.getElementById('idade').value,
+      sexo: document.getElementById('sexo').value,
+      bac1: document.getElementById('bac1').value,
+      bac2: document.getElementById('bac2').value,
+      trm: document.getElementById('trm').value,
+      cultura: document.getElementById('cultura').value,
+      culturaTS: document.getElementById('culturaTS').value,
+      rx: document.getElementById('rx').value,
+      hiv: document.getElementById('hiv').value,
+      formaClinica: document.getElementById('formaClinica').value,
+      tipoEntrada: document.getElementById('tipoEntrada').value,
+      esquema: document.getElementById('esquema').value,
+      dataInicio: document.getElementById('dataInicio').value,
+      tdo: document.getElementById('tdo').value,
+      tarv: document.getElementById('tarv').value,
+      meses: [1,2,3,4,5,6,7,8,9,10,11,12].map(function(i) {
+        const el = document.getElementById('mes' + i);
+        return el ? el.value : '';
+      }),
+      motivoEnc: document.getElementById('motivoEnc').value,
+      dataEnc: document.getElementById('dataEnc').value,
+      contIdent: document.getElementById('contIdent').value,
+      contExam: document.getElementById('contExam').value,
+      obs: document.getElementById('obs').value
+    };
+  }
+
+  function mostrarModalSucessoLivroVerde(resposta, aoFechar) {
+    const modal = document.getElementById('modalSucessoLivroVerde');
+    document.getElementById('modalSucessoTitulo').textContent = resposta.mensagem;
+    document.getElementById('modalSucessoDetalhe').textContent =
+      resposta.camposPreenchidos + ' campo(s) preenchido(s).';
+    modal.style.display = 'flex';
+    livroVerdeState._modalCallback = aoFechar || null;
+
+    const btnOk = document.getElementById('btnModalSucessoOk');
+    btnOk.onkeydown = function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        fecharModalSucessoLivroVerde();
+      }
+    };
+
+    setTimeout(function() { btnOk.focus(); }, 50);
+  }
+
+  function fecharModalSucessoLivroVerde() {
+    document.getElementById('modalSucessoLivroVerde').style.display = 'none';
+    if (typeof livroVerdeState._modalCallback === 'function') {
+      livroVerdeState._modalCallback();
+      livroVerdeState._modalCallback = null;
+    }
+  }
+
+  function tratarRespostaSalvamento(resposta) {
+    if (typeof resposta === 'string') {
+      resposta = {
+        sucesso: true,
+        mensagem: resposta,
+        camposPreenchidos: 0
+      };
+    }
+
+    const btnSalvar = document.getElementById('btnSalvarLivroVerde');
+    btnSalvar.disabled = false;
+    btnSalvar.textContent = 'SALVAR REGISTRO';
+
+    if (!resposta.sucesso) {
+      mostrarModalSucessoLivroVerde(resposta, null);
+      return;
+    }
+
+    mostrarModalSucessoLivroVerde(resposta, function() {
+      if (livroVerdeState.modo === 'novo') {
+        resetFormLivroVerde();
+      } else {
+        const sinanAtual = document.getElementById('sinan').value.trim();
+        livroVerdeState = { modo: null, linhaPlanilha: null, sinanValidado: false, buscando: false };
+        document.getElementById('sinan').value = sinanAtual;
+        buscarSinanLivroVerde(true);
+      }
+    });
+  }
+
+  function salvarLivroVerde() {
+    if (!sessaoAtual) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    if (!livroVerdeState.sinanValidado || !livroVerdeState.modo) {
+      alert('Informe e valide o número do SINAN antes de salvar.');
+      document.getElementById('sinan').focus();
+      return;
+    }
+
+    const dados = coletarDadosFormularioLivroVerde();
+    const btnSalvar = document.getElementById('btnSalvarLivroVerde');
+    const linhaAtualizacao = livroVerdeState.modo === 'existente' ? livroVerdeState.linhaPlanilha : null;
+
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'Salvando...';
+
+    google.script.run
+      .withSuccessHandler(tratarRespostaSalvamento)
+      .withFailureHandler(function(erro) {
+        tratarRespostaSalvamento({
+          sucesso: false,
+          mensagem: 'Erro ao salvar: ' + erro.message,
+          camposPreenchidos: 0
+        });
+        console.error(erro);
+      })
+      .salvarRegistro('Livro Verde - Tratamento', dados, sessaoAtual, linhaAtualizacao);
+  }
+</script>

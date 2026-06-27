@@ -1,0 +1,78 @@
+<div id="telaLivroVerde" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
+
+  <div style="margin-bottom: 16px;">
+    <button onclick="voltarAoDashboard()" style="background:none; border:none; color:#154c79; font-size:14px; font-weight:600; cursor:pointer; padding:0; display:flex; align-items:center; gap:6px;">
+      ← Voltar ao Dashboard
+    </button>
+  </div>
+
+  <div style="background-color: #5CE65C; padding: 15px; border-radius: 10px 10px 0 0; text-align: center;">
+    <h2 style="color: #064E3B;">Livro Verde - Tratamento</h2>
+  </div>
+
+  <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+    <h4 style="margin-bottom:10px; color:#5CE65C;">Identificação</h4>
+
+    <label for="sinan" style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">Nº do SINAN *</label>
+    <input type="text" id="sinan" placeholder="Digite o SINAN e pressione Enter ou saia do campo" class="form-input"
+      onblur="buscarSinanLivroVerde()"
+      onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarSinanLivroVerde(true);}">
+
+    <label for="prontuario" style="display:block; font-size:13px; font-weight:600; color:#334155; margin:10px 0 6px;">Nº do Prontuário</label>
+    <input type="text" id="prontuario" placeholder="Nº do Prontuário" class="form-input campo-livro-verde" disabled>
+
+    <input type="text"   id="nomePaciente" placeholder="Nome do Paciente"  class="form-input campo-livro-verde" disabled>
+    <input type="number" id="idade"        placeholder="Idade"             class="form-input campo-livro-verde" disabled>
+    <select id="sexo" class="form-input campo-livro-verde" disabled>
+      <option value="">Sexo</option>
+      <option value="M">Masculino</option>
+      <option value="F">Feminino</option>
+    </select>
+
+    <p id="msgSinan" class="feedback-msg" style="display:none; margin-top:12px;"></p>
+
+    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Diagnóstico e Exames</h4>
+    <input type="text" id="bac1"      placeholder="Baciloscopia 1º"      class="form-input campo-livro-verde" disabled>
+    <input type="text" id="bac2"      placeholder="Baciloscopia 2º"      class="form-input campo-livro-verde" disabled>
+    <input type="text" id="trm"       placeholder="TRM-TB"               class="form-input campo-livro-verde" disabled>
+    <input type="text" id="cultura"   placeholder="Cultura"              class="form-input campo-livro-verde" disabled>
+    <input type="text" id="culturaTS" placeholder="Cultura TS"           class="form-input campo-livro-verde" disabled>
+    <input type="text" id="rx"        placeholder="Radiografia do tórax" class="form-input campo-livro-verde" disabled>
+    <input type="text" id="hiv"       placeholder="Teste HIV"            class="form-input campo-livro-verde" disabled>
+
+    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Tratamento</h4>
+    <input type="text" id="formaClinica" placeholder="Forma clínica"          class="form-input campo-livro-verde" disabled>
+    <input type="text" id="tipoEntrada"  placeholder="Tipo de entrada"        class="form-input campo-livro-verde" disabled>
+    <input type="text" id="esquema"      placeholder="Esquema de tratamento"  class="form-input campo-livro-verde" disabled>
+    <input type="date" id="dataInicio"                                         class="form-input campo-livro-verde" disabled>
+    <input type="text" id="tdo"          placeholder="TDO"                    class="form-input campo-livro-verde" disabled>
+    <input type="text" id="tarv"         placeholder="TARV"                   class="form-input campo-livro-verde" disabled>
+
+    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Acompanhamento Mensal</h4>
+    <div id="containerMeses"></div>
+
+    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Encerramento</h4>
+    <input type="text"   id="motivoEnc" placeholder="Motivo do encerramento"     class="form-input campo-livro-verde" disabled>
+    <input type="date"   id="dataEnc"                                              class="form-input campo-livro-verde" disabled>
+    <input type="number" id="contIdent" placeholder="Nº contatos identificados"  class="form-input campo-livro-verde" disabled>
+    <input type="number" id="contExam"  placeholder="Nº contatos examinados"     class="form-input campo-livro-verde" disabled>
+    <textarea            id="obs"       placeholder="Observações"                 class="form-input campo-livro-verde" rows="4" disabled></textarea>
+
+    <button id="btnSalvarLivroVerde" onclick="salvarLivroVerde()" disabled
+      style="width:100%; padding:15px; background:#5CE65C; border:none; border-radius:5px; margin-top:20px; font-weight:bold; font-size:15px; cursor:pointer; color:#064E3B;">
+      SALVAR REGISTRO
+    </button>
+
+  </div>
+
+  <!-- Modal de confirmação -->
+  <div id="modalSucessoLivroVerde" class="modal-overlay-livro-verde" style="display:none;">
+    <div class="modal-box-livro-verde">
+      <p id="modalSucessoTitulo" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>
+      <p id="modalSucessoDetalhe" class="modal-detalhe-livro-verde"></p>
+      <button id="btnModalSucessoOk" type="button" class="btn-modal-ok-livro-verde"
+        onclick="fecharModalSucessoLivroVerde()">OK</button>
+    </div>
+  </div>
+</div>

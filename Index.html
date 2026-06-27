@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <?!= HtmlService.createHtmlOutputFromFile('CSS').getContent(); ?>
+  </head>
+  <body>
+
+    <!-- TELAS (apenas HTML, sem scripts) -->
+    <?!= HtmlService.createHtmlOutputFromFile('Tela_Login').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Tela_Dashboard').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Form_LivroVerde').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Forms_LivrosPendentes').getContent(); ?>
+
+    <!-- SCRIPTS (uma única vez, no final do body) -->
+    <script>
+      let sessaoAtual = null; // Variável de sessão global
+    </script>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_Login').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_Dashboard').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_LivroVerde').getContent(); ?>
+
+  </body>
+</html>

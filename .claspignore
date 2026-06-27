@@ -1,0 +1,7 @@
+claude/**
+apps-script-remoto/**
+scripts/**
+planilhas/**
+.cursor/**
+.gitignore
+.claspignore

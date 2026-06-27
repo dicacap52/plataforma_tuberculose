@@ -1,0 +1,72 @@
+<script>
+  function aplicarMascaraCPF(campo) {
+    let v = campo.value;
+    v = v.replace(/\D/g, "");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    campo.value = v;
+  }
+
+  function solicitarAcesso() {
+    const cpf = document.getElementById('cpfInput').value;
+    const btn = document.getElementById('btnEntrar');
+    const msg = document.getElementById('msgErro');
+
+    if (cpf.length !== 14) {
+      msg.textContent = "Por favor, digite um CPF válido.";
+      msg.className = "feedback-msg feedback-error";
+      return;
+    }
+
+    // Limpa mensagem de erro anterior e bloqueia o botão
+    msg.style.display = 'none';
+    msg.className = 'feedback-msg';
+    msg.textContent = '';
+    btn.disabled = true;
+    btn.textContent = "Validando...";
+
+    google.script.run
+      .withSuccessHandler(acessoProcessado)
+      .withFailureHandler(erroServidor)
+      .validarProfissional(cpf);
+  }
+
+  function acessoProcessado(resposta) {
+    const btn = document.getElementById('btnEntrar');
+    const msg = document.getElementById('msgErro');
+
+    btn.disabled = false;
+    btn.textContent = "Entrar no Sistema";
+
+    if (resposta.sucesso) {
+      sessaoAtual = resposta; // Armazena sessão na variável global
+
+      // Preenche os dados do usuário no dashboard
+      document.getElementById('lblNomeUsuario').textContent = resposta.nome;
+      document.getElementById('lblFuncao').textContent = resposta.funcao;
+      document.getElementById('lblUnidade').textContent = resposta.unidade;
+
+      // Troca de tela: oculta login, exibe dashboard
+      document.getElementById('telaLogin').style.display = 'none';
+      document.getElementById('telaDashboard').style.display = 'block';
+
+      // Limpa o campo de CPF para a próxima sessão
+      document.getElementById('cpfInput').value = '';
+
+    } else {
+      msg.textContent = resposta.erro;
+      msg.className = "feedback-msg feedback-error";
+    }
+  }
+
+  function erroServidor(erro) {
+    const btn = document.getElementById('btnEntrar');
+    const msg = document.getElementById('msgErro');
+    btn.disabled = false;
+    btn.textContent = "Entrar no Sistema";
+    msg.textContent = "Erro de conexão com o servidor. Tente novamente.";
+    msg.className = "feedback-msg feedback-error";
+    console.error(erro);
+  }
+</script>

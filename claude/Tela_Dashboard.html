@@ -1,0 +1,46 @@
+<div id="telaDashboard" class="dashboard-layout">
+
+  <!-- CABEÇALHO DO DASHBOARD -->
+  <div class="dash-header">
+    <div class="user-info">
+      <h2>Olá, <span id="lblNomeUsuario"></span></h2>
+      <p id="lblFuncao"></p>
+      <p id="lblUnidade"></p>
+    </div>
+    <button class="btn-logout" onclick="encerrarSessao()">Sair do Sistema</button>
+  </div>
+
+  <!-- GRADE DE MÓDULOS (LIVROS) -->
+  <div class="modules-grid">
+
+    <div class="module-card verde" onclick="abrirModulo('Livro Verde - Tratamento')">
+      <div class="module-content">
+        <div class="module-title">Livro Verde</div>
+        <div class="module-desc">Registro de Tratamento de TB</div>
+      </div>
+    </div>
+
+    <div class="module-card amarelo-cont" onclick="abrirModulo('Livro Amarelo - Contatos')">
+      <div class="module-content">
+        <div class="module-title">Livro Amarelo</div>
+        <div class="module-desc">Investigação de Contatos</div>
+      </div>
+    </div>
+
+    <div class="module-card amarelo-iltb" onclick="abrirModulo('Livro Amarelo - ILTB')">
+      <div class="module-content">
+        <div class="module-title">Livro Amarelo ILTB</div>
+        <div class="module-desc">Infecção Latente por TB</div>
+      </div>
+    </div>
+
+    <div class="module-card azul" onclick="abrirModulo('Livro Azul - DR-TB')">
+      <div class="module-content">
+        <div class="module-title">Livro Azul</div>
+        <div class="module-desc">TB Droga-Resistente</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

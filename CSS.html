@@ -1,0 +1,109 @@
+<style>
+  /* ==================================================================
+     RESET E VARIÁVEIS GERAIS
+     ================================================================== */
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  body { min-height: 100vh; background-color: #F4F7F9; overflow-x: hidden; }
+
+  /* ==================================================================
+     TELA 1: LOGIN (Split Layout)
+     ================================================================== */
+  .split-layout { display: flex; width: 100vw; min-height: 100vh; transition: opacity 0.4s ease; }
+  .left-panel { flex: 1; background-color: #154c79; color: white; padding: 60px; display: flex; flex-direction: column; justify-content: center; position: relative; background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+  .top-tag { position: absolute; top: 40px; left: 60px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; letter-spacing: 1px; }
+  .badge { display: inline-block; border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 16px; border-radius: 20px; font-size: 12px; margin-bottom: 24px; background: rgba(255, 255, 255, 0.05); }
+  .left-panel h1 { font-size: 48px; font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
+  .left-panel h1 span { color: #60A5FA; }
+  .left-panel p { max-width: 400px; font-size: 15px; line-height: 1.6; color: #D1D5DB; margin-top: 20px; }
+  .footer-text { position: absolute; bottom: 40px; left: 60px; font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+  .right-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; background-color: #F8FAFC; }
+  .login-container { width: 100%; max-width: 380px; }
+  .login-container h2 { font-size: 28px; color: #0F172A; margin-bottom: 8px; }
+  .login-container > p { font-size: 14px; color: #64748B; margin-bottom: 32px; }
+  .form-group { margin-bottom: 24px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px; }
+  .form-group input { width: 100%; padding: 14px 16px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 16px; color: #0F172A; transition: all 0.2s; }
+  .form-group input:focus { outline: none; border-color: #154c79; box-shadow: 0 0 0 3px rgba(21, 76, 121, 0.1); }
+  .btn-login { width: 100%; padding: 14px; background-color: #154c79; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+  .btn-login:hover { background-color: #0f3a5e; }
+  .btn-login:disabled { background-color: #94A3B8; cursor: not-allowed; }
+  .feedback-msg { display: none; margin-top: 15px; padding: 12px; border-radius: 6px; font-size: 14px; text-align: center; }
+  .feedback-error { background-color: #FEE2E2; color: #991B1B; border: 1px solid #F87171; display: block; }
+
+  /* ==================================================================
+     TELA 2: DASHBOARD
+     ================================================================== */
+  .dashboard-layout { display: none; padding: 40px 5%; max-width: 1400px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #E2E8F0; }
+  .user-info h2 { font-size: 24px; color: #0F172A; }
+  .user-info p { font-size: 14px; color: #64748B; margin-top: 4px; font-weight: 500; }
+  .btn-logout { background: none; border: 1px solid #CBD5E1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; }
+  .btn-logout:hover { background: #E2E8F0; }
+  .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+
+  /* CARTÕES DOS LIVROS */
+  .module-card { background: #FFFFFF; border-radius: 16px; padding: 0; cursor: pointer; box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1); border: 5px solid rgba(255, 255, 255, 0.3); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .module-card:hover { transform: translateY(-12px); box-shadow: 0 35px 50px -15px rgba(0, 0, 0, 0.3), 0 20px 25px -10px rgba(0, 0, 0, 0.2); border-color: #FFFFFF; }
+  .module-card:active { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
+
+  .module-card.verde       { background-color: #5CE65C; }
+  .module-card.amarelo-cont { background-color: #FFD700; }
+  .module-card.amarelo-iltb { background-color: #FFFF00; }
+  .module-card.azul        { background-color: #2E8B57; }
+
+  .module-card.verde .module-title { color: #064E3B; }
+  .module-card.verde .module-desc  { color: #065F46; }
+  .module-card.amarelo-cont .module-title,
+  .module-card.amarelo-iltb .module-title { color: #422006; }
+  .module-card.amarelo-cont .module-desc,
+  .module-card.amarelo-iltb .module-desc  { color: #713F12; }
+  .module-card.azul .module-title { color: #FFFFFF; }
+  .module-card.azul .module-desc  { color: #E2E8F0; }
+
+  .module-content { padding: 50px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; flex-grow: 1; width: 100%; }
+  .module-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+  .module-desc  { font-size: 14.5px; line-height: 1.5; font-weight: 500; }
+
+  /* ==================================================================
+     COMPONENTES DE FORMULÁRIO (Livros)
+     ================================================================== */
+  .form-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; display: block; font-size: 14px; font-family: 'Inter', sans-serif; }
+  .form-input:focus { outline: none; border-color: #154c79; box-shadow: 0 0 0 3px rgba(21, 76, 121, 0.1); }
+  .form-input.campo-bloqueado,
+  .form-input:disabled { background-color: #F1F5F9; color: #64748B; cursor: not-allowed; opacity: 1; }
+  #btnSalvarLivroVerde:disabled { background-color: #94A3B8 !important; color: #FFFFFF !important; cursor: not-allowed; }
+
+  /* Modal Livro Verde */
+  .modal-overlay-livro-verde {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+    display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;
+  }
+  .modal-box-livro-verde {
+    background: #FFFFFF; border-radius: 12px; padding: 28px 24px 20px;
+    max-width: 360px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.18); text-align: center;
+  }
+  .modal-titulo-livro-verde {
+    color: #000000; font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.4;
+  }
+  .modal-detalhe-livro-verde {
+    color: #000000; font-size: 15px; font-weight: 500; margin-bottom: 22px; line-height: 1.5;
+  }
+  .btn-modal-ok-livro-verde {
+    width: 100%; padding: 12px; background: #154c79; color: #FFFFFF; border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .btn-modal-ok-livro-verde:hover { background: #0f3a5e; }
+  .btn-modal-ok-livro-verde:focus { outline: none; box-shadow: 0 0 0 3px rgba(21, 76, 121, 0.25); }
+
+  /* ==================================================================
+     RESPONSIVIDADE
+     ================================================================== */
+  @media (max-width: 768px) {
+    .split-layout { flex-direction: column; }
+    .left-panel { padding: 40px 20px; text-align: center; align-items: center; }
+    .top-tag, .footer-text { position: static; margin-bottom: 20px; }
+    .left-panel p { display: none; }
+    .dash-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+  }
+</style>
