@@ -4,6 +4,56 @@
 
 const NOME_ABA_PROFISSIONAIS = 'Login_Profissional';
 const ID_PLANILHA_TB = '1Qonf3_b91auVPxe41EoRMr-x6ZyB3MVWo8aJVyoLCR8';
+const COL_INICIO_DADOS = 0; // coluna A — início dos campos do formulário
+const QTD_COLS_METADADOS = 4; // data_edicao, email_agente, nome_profissional_registro, unidade_profissional (ao final)
+
+const CONFIG_LIVROS = {
+  'Livro Verde - Tratamento': {
+    chaveBusca: 'cpf',
+    campoSempreEditavel: 'obs',
+    campos: [
+      'cpf', 'sinan', 'prontuario', 'nomePaciente', 'idade', 'sexo',
+      'bac1', 'bac2', 'trm', 'cultura', 'culturaTS', 'rx', 'hiv',
+      'formaClinica', 'tipoEntrada', 'esquema', 'dataInicio', 'tdo', 'tarv'
+    ],
+    meses: 12,
+    encerramento: ['motivoEnc', 'dataEnc', 'contIdent', 'contExam', 'obs']
+  },
+  'Livro Amarelo - ILTB': {
+    chaveBusca: 'cpf',
+    campoSempreEditavel: null,
+    campos: [
+      'cpf', 'sinan', 'prontuario', 'notificacao', 'identificacaoIndice', 'nomePaciente', 'idade', 'sexo',
+      'baciloscopiaTrm', 'ppd', 'rx', 'hiv', 'esquema', 'dataInicio', 'tdo', 'tarv',
+      'motivoEnc', 'dataEnc'
+    ],
+    meses: 0,
+    encerramento: []
+  },
+  'Livro Azul - Sintomático Respiratório': {
+    chaveBusca: 'cpf',
+    campoSempreEditavel: null,
+    campos: [
+      'cpf', 'sinan', 'sequencial', 'entregaAmostra', 'nomeCompleto', 'idade', 'sexo', 'endereco',
+      'data1aAmostra', 'resultado1aBaar', 'data2aAmostra', 'resultado2aBaar',
+      'dataTrm', 'resultadoTrm', 'numeroGal'
+    ],
+    meses: 0,
+    encerramento: []
+  },
+  'Livro Amarelo - Contatos': {
+    chaveBusca: 'cpf',
+    campoSempreEditavel: null,
+    campos: [
+      'cpf', 'sinanIndice', 'prontuario', 'nomeContato', 'idade', 'sexo', 'grauParentesco',
+      'ppdAplicado', 'ppdResultado', 'dataRaioX', 'resultadoRaioX', 'data1aBaar', 'resultado1aBaar',
+      'dataAntiHiv', 'resultadoHiv', 'iniciadoTb', 'iniciadoIltb', 'realizado', 'orientacao',
+      'recusaPaciente', 'data'
+    ],
+    meses: 0,
+    encerramento: []
+  }
+};
 
 function obterPlanilha() {
   const ativa = SpreadsheetApp.getActiveSpreadsheet();
@@ -11,7 +61,56 @@ function obterPlanilha() {
   return SpreadsheetApp.openById(ID_PLANILHA_TB);
 }
 
-// 1. Função principal que renderiza o Web App
+function obterConfigLivro(nomeAba) {
+  const config = CONFIG_LIVROS[nomeAba];
+  if (!config) throw new Error('Configuração não encontrada para a aba: ' + nomeAba);
+  return config;
+}
+
+function obterChavesFormulario(config) {
+  const chaves = config.campos.slice();
+  for (let i = 1; i <= (config.meses || 0); i++) chaves.push('mes' + i);
+  (config.encerramento || []).forEach(function(chave) { chaves.push(chave); });
+  return chaves;
+}
+
+function obterEmailAgente() {
+  try {
+    const email = Session.getActiveUser().getEmail();
+    return email || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function obterQtdColunasFormulario(config) {
+  return config.campos.length + (config.meses || 0) + (config.encerramento || []).length;
+}
+
+function obterIndiceInicioMetadados(config) {
+  return COL_INICIO_DADOS + obterQtdColunasFormulario(config);
+}
+
+function gravarMetadadosProfissional(sheet, numeroLinha, profissional, emailAgente, config) {
+  const inicio = obterIndiceInicioMetadados(config);
+  sheet.getRange(numeroLinha, inicio + 1).setValue(new Date());
+  sheet.getRange(numeroLinha, inicio + 2).setValue(emailAgente);
+  sheet.getRange(numeroLinha, inicio + 3).setValue(profissional.nome);
+  sheet.getRange(numeroLinha, inicio + 4).setValue(profissional.unidade);
+}
+
+function montarMetadadosProfissional(profissional, emailAgente) {
+  return [new Date(), emailAgente, profissional.nome, profissional.unidade];
+}
+
+function inserirNovoRegistro(sheet, dadosFormulario, profissional, emailAgente, config) {
+  const valoresForm = montarValoresFormulario(dadosFormulario, config);
+  const metadados = montarMetadadosProfissional(profissional, emailAgente);
+  const novaLinha = valoresForm.concat(metadados);
+  const proximaLinha = sheet.getLastRow() + 1;
+  sheet.getRange(proximaLinha, 1, 1, novaLinha.length).setValues([novaLinha]);
+}
+
 function doGet(e) {
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
@@ -20,71 +119,43 @@ function doGet(e) {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-// 2. Validação de Acesso (Login via CPF)
 function validarProfissional(cpfDigitado) {
   const ss = obterPlanilha();
   const sheet = ss.getSheetByName(NOME_ABA_PROFISSIONAIS);
-
-  if (!sheet) {
-    throw new Error("Aba '" + NOME_ABA_PROFISSIONAIS + "' não encontrada no banco de dados.");
-  }
+  if (!sheet) throw new Error("Aba '" + NOME_ABA_PROFISSIONAIS + "' não encontrada.");
 
   const dados = sheet.getDataRange().getValues();
-  const cpfLimpo = cpfDigitado.replace(/\D/g, "");
+  const cpfLimpo = cpfDigitado.replace(/\D/g, '');
 
-  // O loop começa em 1 para pular a linha de cabeçalho
   for (let i = 1; i < dados.length; i++) {
-    let cpfPlanilha = String(dados[i][0]).replace(/\D/g, "");
-
-    if (cpfPlanilha === cpfLimpo) {
+    if (String(dados[i][0]).replace(/\D/g, '') === cpfLimpo) {
       return {
         sucesso: true,
-        nome: dados[i][1],     // Coluna B: Nome do profissional
-        unidade: dados[i][2],  // Coluna C: Unidade
-        funcao: dados[i][3],   // Coluna D: Função (ex: Enfermeiro)
-        cpf: cpfDigitado       // CPF formatado
+        nome: dados[i][1],
+        unidade: dados[i][2],
+        funcao: dados[i][3],
+        cpf: cpfDigitado
       };
     }
   }
-
-  return { sucesso: false, erro: "CPF não localizado na base de profissionais." };
+  return { sucesso: false, erro: 'CPF não localizado na base de profissionais.' };
 }
 
 function obterDadosProfissionalPorCpf(cpf) {
   const ss = obterPlanilha();
   const sheet = ss.getSheetByName(NOME_ABA_PROFISSIONAIS);
+  if (!sheet) throw new Error("Aba '" + NOME_ABA_PROFISSIONAIS + "' não encontrada.");
 
-  if (!sheet) {
-    throw new Error("Aba '" + NOME_ABA_PROFISSIONAIS + "' não encontrada no banco de dados.");
-  }
-
-  const cpfLimpo = String(cpf).replace(/\D/g, "");
+  const cpfLimpo = String(cpf).replace(/\D/g, '');
   const dados = sheet.getDataRange().getValues();
 
   for (let i = 1; i < dados.length; i++) {
-    if (String(dados[i][0]).replace(/\D/g, "") === cpfLimpo) {
-      return {
-        nome: dados[i][1],
-        unidade: dados[i][2]
-      };
+    if (String(dados[i][0]).replace(/\D/g, '') === cpfLimpo) {
+      return { nome: dados[i][1], unidade: dados[i][2] };
     }
   }
-
-  throw new Error("Profissional não encontrado para o CPF informado.");
+  throw new Error('Profissional não encontrado para o CPF informado.');
 }
-
-const NOME_ABA_LIVRO_VERDE = 'Livro Verde - Tratamento';
-const COL_INICIO_DADOS_LIVRO_VERDE = 4; // após as 4 colunas automáticas
-
-const CHAVES_CAMPOS_LIVRO_VERDE = [
-  'sinan', 'prontuario', 'nomePaciente', 'idade', 'sexo',
-  'bac1', 'bac2', 'trm', 'cultura', 'culturaTS', 'rx', 'hiv',
-  'formaClinica', 'tipoEntrada', 'esquema', 'dataInicio', 'tdo', 'tarv'
-];
-
-const CHAVES_ENCERRAMENTO_LIVRO_VERDE = [
-  'motivoEnc', 'dataEnc', 'contIdent', 'contExam', 'obs'
-];
 
 function celulaVazia(valor) {
   return valor === null || valor === undefined || String(valor).trim() === '';
@@ -98,28 +169,27 @@ function formatarValorCelula(valor) {
   return String(valor).trim();
 }
 
-function montarDadosLivroVerdeDaLinha(linha) {
+function montarDadosDaLinha(linha, config) {
   const dados = {};
   const preenchidos = {};
+  let indice = COL_INICIO_DADOS;
 
-  CHAVES_CAMPOS_LIVRO_VERDE.forEach(function(chave, indice) {
-    const valor = formatarValorCelula(linha[COL_INICIO_DADOS_LIVRO_VERDE + indice]);
+  config.campos.forEach(function(chave) {
+    const valor = formatarValorCelula(linha[indice++]);
     dados[chave] = valor;
     preenchidos[chave] = valor !== '';
   });
 
   const meses = [];
-  const inicioMeses = COL_INICIO_DADOS_LIVRO_VERDE + CHAVES_CAMPOS_LIVRO_VERDE.length;
-  for (let i = 0; i < 12; i++) {
-    const valor = formatarValorCelula(linha[inicioMeses + i]);
+  for (let i = 0; i < (config.meses || 0); i++) {
+    const valor = formatarValorCelula(linha[indice++]);
     meses.push(valor);
     preenchidos['mes' + (i + 1)] = valor !== '';
   }
-  dados.meses = meses;
+  if (config.meses) dados.meses = meses;
 
-  const inicioEncerramento = inicioMeses + 12;
-  CHAVES_ENCERRAMENTO_LIVRO_VERDE.forEach(function(chave, indice) {
-    const valor = formatarValorCelula(linha[inicioEncerramento + indice]);
+  (config.encerramento || []).forEach(function(chave) {
+    const valor = formatarValorCelula(linha[indice++]);
     dados[chave] = valor;
     preenchidos[chave] = valor !== '';
   });
@@ -127,252 +197,202 @@ function montarDadosLivroVerdeDaLinha(linha) {
   return { dados: dados, preenchidos: preenchidos };
 }
 
-function buscarRegistroPorSinan(sinan) {
+function normalizarCpf(cpf) {
+  return String(cpf).replace(/\D/g, '');
+}
+
+function obterIndiceColunaCampo(config, chave) {
+  const indiceCampos = config.campos.indexOf(chave);
+  if (indiceCampos >= 0) return COL_INICIO_DADOS + indiceCampos;
+
+  const indiceEncerramento = (config.encerramento || []).indexOf(chave);
+  if (indiceEncerramento >= 0) {
+    return COL_INICIO_DADOS + config.campos.length + (config.meses || 0) + indiceEncerramento;
+  }
+
+  return -1;
+}
+
+function obterIndiceColunaBusca(config) {
+  return obterIndiceColunaCampo(config, config.chaveBusca);
+}
+
+function verificarRegistroEncerrado(linha, config, nomeAba) {
+  if (nomeAba !== 'Livro Verde - Tratamento') return false;
+  const indiceMotivoEnc = obterIndiceColunaCampo(config, 'motivoEnc');
+  if (indiceMotivoEnc < 0) return false;
+  return !celulaVazia(linha[indiceMotivoEnc]);
+}
+
+function buscarRegistroPorCpf(cpf, nomeAba) {
+  const config = obterConfigLivro(nomeAba);
   const ss = obterPlanilha();
-  const sheet = ss.getSheetByName(NOME_ABA_LIVRO_VERDE);
+  const sheet = ss.getSheetByName(nomeAba);
+  if (!sheet) throw new Error("Aba '" + nomeAba + "' não encontrada.");
 
-  if (!sheet) {
-    throw new Error("Aba '" + NOME_ABA_LIVRO_VERDE + "' não encontrada no banco de dados.");
-  }
-
-  const sinanBusca = String(sinan).trim();
-  if (!sinanBusca) {
-    throw new Error('Informe o número do SINAN para buscar.');
-  }
+  const cpfBusca = normalizarCpf(cpf);
+  if (!cpfBusca) throw new Error('Informe o CPF para buscar.');
 
   const dados = sheet.getDataRange().getValues();
+  const colCpf = obterIndiceColunaBusca(config);
   let linhaEncontrada = -1;
 
   for (let i = dados.length - 1; i >= 1; i--) {
-    const sinanPlanilha = formatarValorCelula(dados[i][COL_INICIO_DADOS_LIVRO_VERDE]);
-    if (sinanPlanilha === sinanBusca) {
+    if (normalizarCpf(dados[i][colCpf]) === cpfBusca) {
       linhaEncontrada = i;
       break;
     }
   }
 
   if (linhaEncontrada === -1) {
-    return { encontrado: false, sinan: sinanBusca };
+    return { encontrado: false, cpf: cpfBusca };
   }
 
-  const resultado = montarDadosLivroVerdeDaLinha(dados[linhaEncontrada]);
+  const resultado = montarDadosDaLinha(dados[linhaEncontrada], config);
   return {
     encontrado: true,
-    sinan: sinanBusca,
+    cpf: cpfBusca,
     linha: linhaEncontrada + 1,
+    encerrado: verificarRegistroEncerrado(dados[linhaEncontrada], config, nomeAba),
     dados: resultado.dados,
     preenchidos: resultado.preenchidos
   };
 }
 
-function atualizarRegistroParcial(sheet, numeroLinha, dadosFormulario, profissional, emailAgente) {
+function buscarRegistroPorSinan(sinan, nomeAba) {
+  return buscarRegistroPorCpf(sinan, nomeAba);
+}
+
+function atualizarRegistroParcial(sheet, numeroLinha, dadosFormulario, profissional, emailAgente, config) {
   const linhaAtual = sheet.getRange(numeroLinha, 1, 1, sheet.getLastColumn()).getValues()[0];
   let alteracoes = 0;
+  let indice = COL_INICIO_DADOS;
 
-  CHAVES_CAMPOS_LIVRO_VERDE.forEach(function(chave, indice) {
-    const coluna = COL_INICIO_DADOS_LIVRO_VERDE + indice + 1;
-    const valorAtual = linhaAtual[COL_INICIO_DADOS_LIVRO_VERDE + indice];
+  config.campos.forEach(function(chave) {
+    const valorAtual = linhaAtual[indice];
     const valorNovo = dadosFormulario[chave] || '';
-
     if (celulaVazia(valorAtual) && !celulaVazia(valorNovo)) {
-      sheet.getRange(numeroLinha, coluna).setValue(valorNovo);
+      sheet.getRange(numeroLinha, indice + 1).setValue(valorNovo);
       alteracoes++;
     }
+    indice++;
   });
 
-  const inicioMeses = COL_INICIO_DADOS_LIVRO_VERDE + CHAVES_CAMPOS_LIVRO_VERDE.length;
   const meses = dadosFormulario.meses || [];
-  for (let i = 0; i < 12; i++) {
-    const coluna = inicioMeses + i + 1;
-    const valorAtual = linhaAtual[inicioMeses + i];
+  for (let i = 0; i < (config.meses || 0); i++) {
+    const valorAtual = linhaAtual[indice];
     const valorNovo = meses[i] || '';
-
     if (celulaVazia(valorAtual) && !celulaVazia(valorNovo)) {
-      sheet.getRange(numeroLinha, coluna).setValue(valorNovo);
+      sheet.getRange(numeroLinha, indice + 1).setValue(valorNovo);
       alteracoes++;
     }
+    indice++;
   }
 
-  const inicioEncerramento = inicioMeses + 12;
-  CHAVES_ENCERRAMENTO_LIVRO_VERDE.forEach(function(chave, indice) {
-    if (chave === 'obs') return;
-
-    const coluna = inicioEncerramento + indice + 1;
-    const valorAtual = linhaAtual[inicioEncerramento + indice];
+  (config.encerramento || []).forEach(function(chave) {
+    const valorAtual = linhaAtual[indice];
     const valorNovo = dadosFormulario[chave] || '';
+    const sempreEditavel = config.campoSempreEditavel === chave;
 
-    if (celulaVazia(valorAtual) && !celulaVazia(valorNovo)) {
-      sheet.getRange(numeroLinha, coluna).setValue(valorNovo);
+    if (sempreEditavel) {
+      if (!celulaVazia(valorNovo) && String(valorAtual || '').trim() !== String(valorNovo).trim()) {
+        sheet.getRange(numeroLinha, indice + 1).setValue(valorNovo);
+        alteracoes++;
+      }
+    } else if (celulaVazia(valorAtual) && !celulaVazia(valorNovo)) {
+      sheet.getRange(numeroLinha, indice + 1).setValue(valorNovo);
       alteracoes++;
     }
+    indice++;
   });
-
-  const indiceObs = CHAVES_ENCERRAMENTO_LIVRO_VERDE.indexOf('obs');
-  const colunaObs = inicioEncerramento + indiceObs + 1;
-  const valorNovoObs = dadosFormulario.obs || '';
-  const valorAtualObs = linhaAtual[inicioEncerramento + indiceObs];
-
-  if (!celulaVazia(valorNovoObs) && String(valorAtualObs || '').trim() !== String(valorNovoObs).trim()) {
-    sheet.getRange(numeroLinha, colunaObs).setValue(valorNovoObs);
-    alteracoes++;
-  }
 
   if (alteracoes > 0) {
-    atualizarAuditoriaUltimaModificacao(sheet, numeroLinha, profissional, emailAgente);
+    gravarMetadadosProfissional(sheet, numeroLinha, profissional, emailAgente, config);
   }
 
   return alteracoes;
 }
 
-function atualizarAuditoriaUltimaModificacao(sheet, numeroLinha, profissional, emailAgente) {
-  sheet.getRange(numeroLinha, 1).setValue(new Date());
-  sheet.getRange(numeroLinha, 2).setValue(emailAgente);
-  sheet.getRange(numeroLinha, 3).setValue(profissional.nome);
-  sheet.getRange(numeroLinha, 4).setValue(profissional.unidade);
+function montarValoresFormulario(dadosFormulario, config) {
+  const valores = [];
+  config.campos.forEach(function(chave) {
+    valores.push(dadosFormulario[chave] || '');
+  });
+
+  const meses = dadosFormulario.meses || [];
+  for (let i = 0; i < (config.meses || 0); i++) {
+    valores.push(meses[i] || '');
+  }
+
+  (config.encerramento || []).forEach(function(chave) {
+    valores.push(dadosFormulario[chave] || '');
+  });
+
+  return valores;
 }
 
-function contarCamposPreenchidosFormulario(dadosFormulario) {
+function contarCamposPreenchidosFormulario(dadosFormulario, config) {
   let total = 0;
-
-  CHAVES_CAMPOS_LIVRO_VERDE.forEach(function(chave) {
+  obterChavesFormulario(config).forEach(function(chave) {
+    if (chave.indexOf('mes') === 0 && dadosFormulario.meses) {
+      const idx = parseInt(chave.replace('mes', ''), 10) - 1;
+      if (!celulaVazia(dadosFormulario.meses[idx])) total++;
+      return;
+    }
     if (!celulaVazia(dadosFormulario[chave])) total++;
   });
-
-  (dadosFormulario.meses || []).forEach(function(mes) {
-    if (!celulaVazia(mes)) total++;
-  });
-
-  CHAVES_ENCERRAMENTO_LIVRO_VERDE.forEach(function(chave) {
-    if (!celulaVazia(dadosFormulario[chave])) total++;
-  });
-
   return total;
 }
 
 function respostaSalvamento(tipo, mensagem, camposPreenchidos) {
-  return {
-    sucesso: true,
-    tipo: tipo,
-    mensagem: mensagem,
-    camposPreenchidos: camposPreenchidos
-  };
+  return { sucesso: true, tipo: tipo, mensagem: mensagem, camposPreenchidos: camposPreenchidos };
 }
 
-// 3. Motor de Inserção — colunas 1–4 preenchidas automaticamente no Livro Verde
 function salvarRegistro(nomeAbaDestino, dadosFormulario, dadosSessao, numeroLinhaAtualizacao) {
+  const config = obterConfigLivro(nomeAbaDestino);
   const ss = obterPlanilha();
   const sheet = ss.getSheetByName(nomeAbaDestino);
 
-  if (!sheet) throw new Error("Aba de destino não encontrada: " + nomeAbaDestino);
-  if (!dadosSessao || !dadosSessao.cpf) {
-    throw new Error("Sessão inválida. Faça login novamente.");
-  }
+  if (!sheet) throw new Error('Aba de destino não encontrada: ' + nomeAbaDestino);
+  if (!dadosSessao || !dadosSessao.cpf) throw new Error('Sessão inválida. Faça login novamente.');
 
   const profissional = obterDadosProfissionalPorCpf(dadosSessao.cpf);
-
-  let emailAgente = "";
-  try {
-    emailAgente = Session.getActiveUser().getEmail();
-  } catch (e) {}
+  const emailAgente = obterEmailAgente();
 
   if (numeroLinhaAtualizacao) {
     const trava = LockService.getScriptLock();
     trava.waitLock(10000);
-
     try {
       const alteracoes = atualizarRegistroParcial(
-        sheet,
-        numeroLinhaAtualizacao,
-        dadosFormulario,
-        profissional,
-        emailAgente
+        sheet, numeroLinhaAtualizacao, dadosFormulario, profissional, emailAgente, config
       );
-
       if (alteracoes === 0) {
-        return {
-          sucesso: false,
-          tipo: 'atualizado',
-          mensagem: 'Nenhum campo foi alterado.',
-          camposPreenchidos: 0
-        };
+        return { sucesso: false, tipo: 'atualizado', mensagem: 'Nenhum campo foi alterado.', camposPreenchidos: 0 };
       }
-
       return respostaSalvamento('atualizado', 'Registro atualizado com sucesso', alteracoes);
     } finally {
       trava.releaseLock();
     }
   }
 
-  if (!dadosFormulario.sinan || String(dadosFormulario.sinan).trim() === '') {
-    throw new Error('Informe o número do SINAN antes de salvar.');
-  }
+  const cpfValor = dadosFormulario[config.chaveBusca];
+  if (celulaVazia(cpfValor)) throw new Error('Informe o CPF antes de salvar.');
 
-  const busca = buscarRegistroPorSinan(dadosFormulario.sinan);
+  const busca = buscarRegistroPorCpf(cpfValor, nomeAbaDestino);
   if (busca.encontrado) {
-    throw new Error('Este SINAN já está cadastrado. Busque o registro para completar campos em branco.');
+    const podeNovoComCpfEncerrado = nomeAbaDestino === 'Livro Verde - Tratamento' && busca.encerrado;
+    if (!podeNovoComCpfEncerrado) {
+      throw new Error('Este CPF já está cadastrado. Busque o registro para completar campos em branco.');
+    }
   }
 
-  const dataCriacao = new Date();
-  const meses = dadosFormulario.meses || [];
-  while (meses.length < 12) meses.push('');
-
-  const novaLinha = [
-    // ── COLUNAS AUTOMÁTICAS (1–4) ──────────────────────────────
-    dataCriacao,              // data_criação
-    emailAgente,              // email_agente
-    profissional.nome,        // nome_profissional_registro
-    profissional.unidade,     // unidade_profissional
-
-    // ── DADOS DO FORMULÁRIO (5 em diante) ──────────────────────
-    dadosFormulario.sinan         || '',
-    dadosFormulario.prontuario    || '',
-    dadosFormulario.nomePaciente  || '',
-    dadosFormulario.idade         || '',
-    dadosFormulario.sexo          || '',
-
-    // ── DIAGNÓSTICO E EXAMES ───────────────────────────────────
-    dadosFormulario.bac1          || '',
-    dadosFormulario.bac2          || '',
-    dadosFormulario.trm           || '',
-    dadosFormulario.cultura       || '',
-    dadosFormulario.culturaTS     || '',
-    dadosFormulario.rx            || '',
-    dadosFormulario.hiv           || '',
-
-    // ── TRATAMENTO ─────────────────────────────────────────────
-    dadosFormulario.formaClinica  || '',
-    dadosFormulario.tipoEntrada   || '',
-    dadosFormulario.esquema       || '',
-    dadosFormulario.dataInicio    || '',
-    dadosFormulario.tdo           || '',
-    dadosFormulario.tarv          || '',
-
-    // ── ACOMPANHAMENTO MENSAL (12 meses) ───────────────────────
-    meses[0], meses[1], meses[2],  meses[3],
-    meses[4], meses[5], meses[6],  meses[7],
-    meses[8], meses[9], meses[10], meses[11],
-
-    // ── ENCERRAMENTO ───────────────────────────────────────────
-    dadosFormulario.motivoEnc     || '',
-    dadosFormulario.dataEnc       || '',
-    dadosFormulario.contIdent     || '',
-    dadosFormulario.contExam      || '',
-    dadosFormulario.obs           || ''
-  ];
-
-  // LockService evita colisão se dois usuários salvarem ao mesmo tempo
   const trava = LockService.getScriptLock();
   trava.waitLock(10000);
-
   try {
-    sheet.appendRow(novaLinha);
+    inserirNovoRegistro(sheet, dadosFormulario, profissional, emailAgente, config);
   } finally {
     trava.releaseLock();
   }
 
-  return respostaSalvamento(
-    'novo',
-    'Registro salvo com sucesso',
-    contarCamposPreenchidosFormulario(dadosFormulario)
-  );
+  return respostaSalvamento('novo', 'Registro salvo com sucesso', contarCamposPreenchidosFormulario(dadosFormulario, config));
 }

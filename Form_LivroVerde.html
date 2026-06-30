@@ -14,10 +14,13 @@
 
     <h4 style="margin-bottom:10px; color:#5CE65C;">Identificação</h4>
 
-    <label for="sinan" style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">Nº do SINAN *</label>
-    <input type="text" id="sinan" placeholder="Digite o SINAN e pressione Enter ou saia do campo" class="form-input"
-      onblur="buscarSinanLivroVerde()"
-      onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarSinanLivroVerde(true);}">
+    <label for="cpf" style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">CPF *</label>
+    <input type="text" id="cpf" placeholder="Digite o CPF e pressione Enter ou saia do campo" class="form-input"
+      onblur="buscarCpfLivroVerde()"
+      onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarCpfLivroVerde(true);}">
+
+    <label for="sinan" style="display:block; font-size:13px; font-weight:600; color:#334155; margin:10px 0 6px;">Nº do SINAN</label>
+    <input type="text" id="sinan" placeholder="Nº do SINAN" class="form-input campo-livro-verde" disabled>
 
     <label for="prontuario" style="display:block; font-size:13px; font-weight:600; color:#334155; margin:10px 0 6px;">Nº do Prontuário</label>
     <input type="text" id="prontuario" placeholder="Nº do Prontuário" class="form-input campo-livro-verde" disabled>
@@ -30,7 +33,7 @@
       <option value="F">Feminino</option>
     </select>
 
-    <p id="msgSinan" class="feedback-msg" style="display:none; margin-top:12px;"></p>
+    <p id="msgBusca" class="feedback-msg" style="display:none; margin-top:12px;"></p>
 
     <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Diagnóstico e Exames</h4>
     <input type="text" id="bac1"      placeholder="Baciloscopia 1º"      class="form-input campo-livro-verde" disabled>
@@ -53,7 +56,14 @@
     <div id="containerMeses"></div>
 
     <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Encerramento</h4>
-    <input type="text"   id="motivoEnc" placeholder="Motivo do encerramento"     class="form-input campo-livro-verde" disabled>
+    <select id="motivoEnc" class="form-input campo-livro-verde" disabled>
+      <option value="">Motivo do encerramento</option>
+      <option value="Cura">Cura</option>
+      <option value="Abandono">Abandono</option>
+      <option value="Óbito por TB">Óbito por TB</option>
+      <option value="Óbito por outras causas">Óbito por outras causas</option>
+      <option value="Transferência">Transferência</option>
+    </select>
     <input type="date"   id="dataEnc"                                              class="form-input campo-livro-verde" disabled>
     <input type="number" id="contIdent" placeholder="Nº contatos identificados"  class="form-input campo-livro-verde" disabled>
     <input type="number" id="contExam"  placeholder="Nº contatos examinados"     class="form-input campo-livro-verde" disabled>
@@ -66,13 +76,16 @@
 
   </div>
 
-  <!-- Modal de confirmação -->
+  <!-- Modal -->
   <div id="modalSucessoLivroVerde" class="modal-overlay-livro-verde" style="display:none;">
     <div class="modal-box-livro-verde">
       <p id="modalSucessoTitulo" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>
       <p id="modalSucessoDetalhe" class="modal-detalhe-livro-verde"></p>
-      <button id="btnModalSucessoOk" type="button" class="btn-modal-ok-livro-verde"
-        onclick="fecharModalSucessoLivroVerde()">OK</button>
+      <div class="modal-acoes-livro-verde">
+        <button id="btnModalVisualizarLivroVerde" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalCancelarLivroVerde" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
+        <button id="btnModalSucessoOk" type="button" class="btn-modal-ok-livro-verde">OK</button>
+      </div>
     </div>
   </div>
 </div>

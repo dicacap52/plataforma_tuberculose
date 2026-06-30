@@ -1,0 +1,38 @@
+<script>
+  registrarLivro({
+    aba: 'Livro Azul - Sintomático Respiratório',
+    idCpf: 'azul_cpf',
+    chaveBusca: 'cpf',
+    idMsgBusca: 'msgBuscaAzul',
+    idBtnSalvar: 'btnSalvarLivroAzul',
+    idModal: 'modalSucessoAzul',
+    idModalTitulo: 'modalSucessoTituloAzul',
+    idModalDetalhe: 'modalSucessoDetalheAzul',
+    idModalOk: 'btnModalSucessoOkAzul',
+    idModalCancelar: 'btnModalCancelarAzul',
+    idModalVisualizar: 'btnModalVisualizarAzul',
+    idPrimeiroCampo: 'azul_sinan',
+    campos: [
+      { id: 'azul_cpf', key: 'cpf' },
+      { id: 'azul_sinan', key: 'sinan' },
+      { id: 'azul_sequencial', key: 'sequencial' },
+      { id: 'azul_entregaAmostra', key: 'entregaAmostra' },
+      { id: 'azul_nomeCompleto', key: 'nomeCompleto' },
+      { id: 'azul_idade', key: 'idade' },
+      { id: 'azul_sexo', key: 'sexo' },
+      { id: 'azul_endereco', key: 'endereco' },
+      { id: 'azul_data1aAmostra', key: 'data1aAmostra' },
+      { id: 'azul_resultado1aBaar', key: 'resultado1aBaar' },
+      { id: 'azul_data2aAmostra', key: 'data2aAmostra' },
+      { id: 'azul_resultado2aBaar', key: 'resultado2aBaar' },
+      { id: 'azul_dataTrm', key: 'dataTrm' },
+      { id: 'azul_resultadoTrm', key: 'resultadoTrm' },
+      { id: 'azul_numeroGal', key: 'numeroGal' }
+    ]
+  });
+
+  function inicializarLivroAzul() { gerenciadoresLivros['Livro Azul - Sintomático Respiratório'].init(); }
+  function buscarCpfLivroAzul(forcar) { gerenciadoresLivros['Livro Azul - Sintomático Respiratório'].buscar(forcar); }
+  function salvarLivroAzul() { gerenciadoresLivros['Livro Azul - Sintomático Respiratório'].salvar(); }
+  function fecharModalSucessoLivroAzul() { gerenciadoresLivros['Livro Azul - Sintomático Respiratório'].fecharModal(); }
+</script>

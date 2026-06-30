@@ -1,0 +1,44 @@
+<script>
+  registrarLivro({
+    aba: 'Livro Amarelo - Contatos',
+    idCpf: 'cont_cpf',
+    chaveBusca: 'cpf',
+    idMsgBusca: 'msgBuscaContatos',
+    idBtnSalvar: 'btnSalvarLivroAmarelo',
+    idModal: 'modalSucessoContatos',
+    idModalTitulo: 'modalSucessoTituloContatos',
+    idModalDetalhe: 'modalSucessoDetalheContatos',
+    idModalOk: 'btnModalSucessoOkContatos',
+    idModalCancelar: 'btnModalCancelarContatos',
+    idModalVisualizar: 'btnModalVisualizarContatos',
+    idPrimeiroCampo: 'cont_sinanIndice',
+    campos: [
+      { id: 'cont_cpf', key: 'cpf' },
+      { id: 'cont_sinanIndice', key: 'sinanIndice' },
+      { id: 'cont_prontuario', key: 'prontuario' },
+      { id: 'cont_nomeContato', key: 'nomeContato' },
+      { id: 'cont_idade', key: 'idade' },
+      { id: 'cont_sexo', key: 'sexo' },
+      { id: 'cont_grauParentesco', key: 'grauParentesco' },
+      { id: 'cont_ppdAplicado', key: 'ppdAplicado' },
+      { id: 'cont_ppdResultado', key: 'ppdResultado' },
+      { id: 'cont_dataRaioX', key: 'dataRaioX' },
+      { id: 'cont_resultadoRaioX', key: 'resultadoRaioX' },
+      { id: 'cont_data1aBaar', key: 'data1aBaar' },
+      { id: 'cont_resultado1aBaar', key: 'resultado1aBaar' },
+      { id: 'cont_dataAntiHiv', key: 'dataAntiHiv' },
+      { id: 'cont_resultadoHiv', key: 'resultadoHiv' },
+      { id: 'cont_iniciadoTb', key: 'iniciadoTb' },
+      { id: 'cont_iniciadoIltb', key: 'iniciadoIltb' },
+      { id: 'cont_realizado', key: 'realizado' },
+      { id: 'cont_orientacao', key: 'orientacao' },
+      { id: 'cont_recusaPaciente', key: 'recusaPaciente' },
+      { id: 'cont_data', key: 'data' }
+    ]
+  });
+
+  function inicializarLivroAmarelo() { gerenciadoresLivros['Livro Amarelo - Contatos'].init(); }
+  function buscarCpfLivroAmarelo(forcar) { gerenciadoresLivros['Livro Amarelo - Contatos'].buscar(forcar); }
+  function salvarLivroAmarelo() { gerenciadoresLivros['Livro Amarelo - Contatos'].salvar(); }
+  function fecharModalSucessoLivroAmarelo() { gerenciadoresLivros['Livro Amarelo - Contatos'].fecharModal(); }
+</script>

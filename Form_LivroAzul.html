@@ -1,0 +1,43 @@
+<div id="telaLivroAzul" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
+  <div style="margin-bottom: 16px;">
+    <button onclick="voltarAoDashboard()" style="background:none;border:none;color:#154c79;font-size:14px;font-weight:600;cursor:pointer;">← Voltar ao Dashboard</button>
+  </div>
+  <div style="background-color:#2E8B57;padding:15px;border-radius:10px 10px 0 0;text-align:center;">
+    <h2 style="color:#FFFFFF;">Livro Azul - Sintomático Respiratório</h2>
+  </div>
+  <div style="background:white;padding:20px;border-radius:0 0 10px 10px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+    <h4 style="margin-bottom:10px;color:#2E8B57;">Identificação</h4>
+    <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">CPF *</label>
+    <input type="text" id="azul_cpf" class="form-input" placeholder="Digite o CPF"
+      onblur="buscarCpfLivroAzul()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAzul(true);}">
+    <input type="text" id="azul_sinan" class="form-input" placeholder="Nº do SINAN" disabled>
+    <input type="text" id="azul_sequencial" class="form-input" placeholder="Nº Sequencial" disabled>
+    <input type="text" id="azul_entregaAmostra" class="form-input" placeholder="Entrega da Amostra" disabled>
+    <input type="text" id="azul_nomeCompleto" class="form-input" placeholder="Nome Completo" disabled>
+    <input type="number" id="azul_idade" class="form-input" placeholder="Idade" disabled>
+    <select id="azul_sexo" class="form-input" disabled><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
+    <input type="text" id="azul_endereco" class="form-input" placeholder="Endereço Completo" disabled>
+    <p id="msgBuscaAzul" class="feedback-msg" style="display:none;margin-top:12px;"></p>
+    <h4 style="margin-top:20px;margin-bottom:10px;color:#2E8B57;">Amostras e Exames</h4>
+    <input type="date" id="azul_data1aAmostra" class="form-input" disabled>
+    <input type="text" id="azul_resultado1aBaar" class="form-input" placeholder="Resultado da 1ª Amostra BAAR" disabled>
+    <input type="date" id="azul_data2aAmostra" class="form-input" disabled>
+    <input type="text" id="azul_resultado2aBaar" class="form-input" placeholder="Resultado da 2ª Amostra BAAR" disabled>
+    <input type="date" id="azul_dataTrm" class="form-input" disabled>
+    <input type="text" id="azul_resultadoTrm" class="form-input" placeholder="Resultado do Teste Rápido Molecular (TRM-TB)" disabled>
+    <input type="text" id="azul_numeroGal" class="form-input" placeholder="Nº do GAL" disabled>
+    <button id="btnSalvarLivroAzul" onclick="salvarLivroAzul()" disabled
+      style="width:100%;padding:15px;background:#2E8B57;border:none;border-radius:5px;margin-top:20px;font-weight:bold;color:#FFFFFF;cursor:pointer;">SALVAR REGISTRO</button>
+  </div>
+  <div id="modalSucessoAzul" class="modal-overlay-livro-verde" style="display:none;">
+    <div class="modal-box-livro-verde">
+      <p id="modalSucessoTituloAzul" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>
+      <p id="modalSucessoDetalheAzul" class="modal-detalhe-livro-verde"></p>
+      <div class="modal-acoes-livro-verde">
+        <button id="btnModalVisualizarAzul" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalCancelarAzul" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
+        <button id="btnModalSucessoOkAzul" type="button" class="btn-modal-ok-livro-verde">OK</button>
+      </div>
+    </div>
+  </div>
+</div>

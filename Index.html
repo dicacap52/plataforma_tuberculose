@@ -10,19 +10,23 @@
   </head>
   <body>
 
-    <!-- TELAS (apenas HTML, sem scripts) -->
     <?!= HtmlService.createHtmlOutputFromFile('Tela_Login').getContent(); ?>
     <?!= HtmlService.createHtmlOutputFromFile('Tela_Dashboard').getContent(); ?>
     <?!= HtmlService.createHtmlOutputFromFile('Form_LivroVerde').getContent(); ?>
-    <?!= HtmlService.createHtmlOutputFromFile('Forms_LivrosPendentes').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Form_LivroAmarelo').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Form_LivroAmareloILTB').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Form_LivroAzul').getContent(); ?>
 
-    <!-- SCRIPTS (uma única vez, no final do body) -->
     <script>
-      let sessaoAtual = null; // Variável de sessão global
+      let sessaoAtual = null;
     </script>
     <?!= HtmlService.createHtmlOutputFromFile('JS_Login').getContent(); ?>
     <?!= HtmlService.createHtmlOutputFromFile('JS_Dashboard').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_LivroComum').getContent(); ?>
     <?!= HtmlService.createHtmlOutputFromFile('JS_LivroVerde').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_LivroAmarelo').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_LivroAmareloILTB').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('JS_LivroAzul').getContent(); ?>
 
   </body>
 </html>

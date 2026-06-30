@@ -26,12 +26,15 @@
       document.getElementById('telaLivroVerde').style.display = 'block';
     }
     else if (nomeDoLivroDestino === 'Livro Amarelo - Contatos') {
+      inicializarLivroAmarelo();
       document.getElementById('telaLivroAmarelo').style.display = 'block';
     }
     else if (nomeDoLivroDestino === 'Livro Amarelo - ILTB') {
+      inicializarLivroAmareloILTB();
       document.getElementById('telaLivroAmareloILTB').style.display = 'block';
     }
-    else if (nomeDoLivroDestino === 'Livro Azul - DR-TB') {
+    else if (nomeDoLivroDestino === 'Livro Azul - Sintomático Respiratório') {
+      inicializarLivroAzul();
       document.getElementById('telaLivroAzul').style.display = 'block';
     }
   }

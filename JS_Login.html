@@ -1,4 +1,5 @@
 <script>
+  // Login — modal de CPF não encontrado
   function aplicarMascaraCPF(campo) {
     let v = campo.value;
     v = v.replace(/\D/g, "");
@@ -6,6 +7,42 @@
     v = v.replace(/(\d{3})(\d)/, "$1.$2");
     v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     campo.value = v;
+  }
+
+  function mostrarModalLogin(titulo, detalhe) {
+    const modal = document.getElementById('modalLoginAlerta');
+    const tituloEl = document.getElementById('modalLoginTitulo');
+    const detalheEl = document.getElementById('modalLoginDetalhe');
+    const btnOk = document.getElementById('btnModalLoginOk');
+
+    if (!modal || !tituloEl || !detalheEl) {
+      const msg = document.getElementById('msgErro');
+      if (msg) {
+        msg.textContent = titulo + ' ' + detalhe;
+        msg.className = 'feedback-msg feedback-error';
+        msg.style.display = 'block';
+      }
+      return;
+    }
+
+    tituloEl.textContent = titulo;
+    detalheEl.textContent = detalhe;
+    detalheEl.style.display = 'block';
+    modal.style.display = 'flex';
+
+    if (btnOk) {
+      btnOk.onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); fecharModalLogin(); }
+      };
+      setTimeout(function() { btnOk.focus(); }, 50);
+    }
+  }
+
+  function fecharModalLogin() {
+    const modal = document.getElementById('modalLoginAlerta');
+    if (modal) modal.style.display = 'none';
+    const cpfInput = document.getElementById('cpfInput');
+    if (cpfInput) cpfInput.focus();
   }
 
   function solicitarAcesso() {
@@ -16,10 +53,10 @@
     if (cpf.length !== 14) {
       msg.textContent = "Por favor, digite um CPF válido.";
       msg.className = "feedback-msg feedback-error";
+      msg.style.display = 'block';
       return;
     }
 
-    // Limpa mensagem de erro anterior e bloqueia o botão
     msg.style.display = 'none';
     msg.className = 'feedback-msg';
     msg.textContent = '';
@@ -39,25 +76,25 @@
     btn.disabled = false;
     btn.textContent = "Entrar no Sistema";
 
-    if (resposta.sucesso) {
-      sessaoAtual = resposta; // Armazena sessão na variável global
+    if (resposta && resposta.sucesso === true) {
+      sessaoAtual = resposta;
 
-      // Preenche os dados do usuário no dashboard
       document.getElementById('lblNomeUsuario').textContent = resposta.nome;
       document.getElementById('lblFuncao').textContent = resposta.funcao;
       document.getElementById('lblUnidade').textContent = resposta.unidade;
 
-      // Troca de tela: oculta login, exibe dashboard
       document.getElementById('telaLogin').style.display = 'none';
       document.getElementById('telaDashboard').style.display = 'block';
 
-      // Limpa o campo de CPF para a próxima sessão
       document.getElementById('cpfInput').value = '';
-
-    } else {
-      msg.textContent = resposta.erro;
-      msg.className = "feedback-msg feedback-error";
+      return;
     }
+
+    if (msg) msg.style.display = 'none';
+    mostrarModalLogin(
+      '⚠️ Cadastro não encontrado!',
+      'Não identificamos uma conta associada a este CPF em nosso sistema. Verifique se o CPF foi digitado corretamente ou entre em contato com seu Gestor para solicitar seu cadastro.'
+    );
   }
 
   function erroServidor(erro) {
@@ -67,6 +104,7 @@
     btn.textContent = "Entrar no Sistema";
     msg.textContent = "Erro de conexão com o servidor. Tente novamente.";
     msg.className = "feedback-msg feedback-error";
+    msg.style.display = 'block';
     console.error(erro);
   }
 </script>

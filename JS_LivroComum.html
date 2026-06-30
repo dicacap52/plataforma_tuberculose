@@ -1,0 +1,386 @@
+<script>
+  const gerenciadoresLivros = {};
+
+  function registrarLivro(cfg) {
+    const state = {
+      modo: null,
+      linhaPlanilha: null,
+      cpfValidado: false,
+      cpfAtual: '',
+      buscando: false,
+      modalModo: 'ok',
+      _modalCallback: null,
+      _modalCallbackConfirmar: null,
+      _modalCallbackVisualizar: null,
+      _modalCallbackCancelar: null
+    };
+
+    function el(id) { return document.getElementById(id); }
+
+    function mostrarMsg(texto, tipo) {
+      const msg = el(cfg.idMsgBusca);
+      if (!msg) return;
+      msg.textContent = texto;
+      msg.className = 'feedback-msg';
+      if (!texto) { msg.style.display = 'none'; return; }
+      msg.style.display = 'block';
+      if (tipo === 'erro') msg.classList.add('feedback-error');
+      else if (tipo === 'ok') {
+        msg.style.backgroundColor = '#DCFCE7';
+        msg.style.color = '#166534';
+        msg.style.border = '1px solid #86EFAC';
+      } else if (tipo === 'info') {
+        msg.style.backgroundColor = '#EFF6FF';
+        msg.style.color = '#1D4ED8';
+        msg.style.border = '1px solid #93C5FD';
+      }
+    }
+
+    function definirCampo(id, valor, bloqueado) {
+      const campo = el(id);
+      if (!campo) return;
+      campo.value = valor != null ? valor : '';
+      campo.disabled = bloqueado;
+      campo.readOnly = false;
+      campo.classList.toggle('campo-bloqueado', bloqueado);
+    }
+
+    function garantirCpfEditavel(valor) {
+      const campo = el(cfg.idCpf);
+      if (!campo) return;
+      if (valor !== undefined) campo.value = valor;
+      campo.disabled = false;
+      campo.readOnly = false;
+      campo.classList.remove('campo-bloqueado');
+    }
+
+    function campoDeveBloquear(c, preenchidos, modo) {
+      if (modo === 'visualizar') return true;
+      if (modo === 'novo') return false;
+      if (c.key === cfg.chaveBusca) return false;
+      if (cfg.campoSempreEditavel && c.key === cfg.campoSempreEditavel) return false;
+      return !!preenchidos[c.key];
+    }
+
+    function aplicarEstadoFormulario(dados, preenchidos, modo) {
+      cfg.campos.forEach(function(c) {
+        if (c.key === cfg.chaveBusca) return;
+        definirCampo(c.id, dados[c.key] || '', campoDeveBloquear(c, preenchidos, modo));
+      });
+
+      if (cfg.onAplicarCampos) cfg.onAplicarCampos(dados, preenchidos, modo);
+
+      garantirCpfEditavel(dados[cfg.chaveBusca] || el(cfg.idCpf).value);
+      if (el(cfg.idBtnSalvar)) el(cfg.idBtnSalvar).disabled = (modo === 'visualizar');
+    }
+
+    function bloquearCamposAguardandoBusca() {
+      cfg.campos.forEach(function(c) {
+        if (c.key === cfg.chaveBusca) return;
+        definirCampo(c.id, '', true);
+      });
+      if (cfg.onBloquearCampos) cfg.onBloquearCampos();
+    }
+
+    function reset() {
+      state.modo = null;
+      state.linhaPlanilha = null;
+      state.cpfValidado = false;
+      state.cpfAtual = '';
+      state.buscando = false;
+
+      garantirCpfEditavel('');
+      bloquearCamposAguardandoBusca();
+      mostrarMsg('', '');
+      if (el(cfg.idBtnSalvar)) el(cfg.idBtnSalvar).disabled = true;
+    }
+
+    function habilitarNovo(cpf) {
+      const dados = {};
+      dados[cfg.chaveBusca] = cpf;
+      const preenchidos = {};
+      cfg.campos.forEach(function(c) { preenchidos[c.key] = false; });
+
+      state.modo = 'novo';
+      state.linhaPlanilha = null;
+      state.cpfValidado = true;
+      state.cpfAtual = cpf.replace(/\D/g, '');
+
+      aplicarEstadoFormulario(dados, preenchidos, 'novo');
+      mostrarMsg('Preencha todos os campos para cadastrar o novo registro.', 'info');
+      if (cfg.idPrimeiroCampo) el(cfg.idPrimeiroCampo).focus();
+    }
+
+    function aplicarVisualizacao(dados, preenchidos) {
+      const bloqueados = {};
+      cfg.campos.forEach(function(c) { bloqueados[c.key] = true; });
+      for (let i = 1; i <= (cfg.qtdMeses || 0); i++) bloqueados['mes' + i] = true;
+
+      state.modo = 'visualizar';
+      state.linhaPlanilha = null;
+      state.cpfValidado = true;
+      state.cpfAtual = el(cfg.idCpf).value.replace(/\D/g, '');
+
+      aplicarEstadoFormulario(dados, bloqueados, 'visualizar');
+      mostrarMsg('Registro encerrado. Visualização somente leitura.', 'info');
+    }
+
+    function configurarBotoesModal(modo) {
+      const btnOk = el(cfg.idModalOk);
+      const btnCancelar = cfg.idModalCancelar ? el(cfg.idModalCancelar) : null;
+      const btnVisualizar = cfg.idModalVisualizar ? el(cfg.idModalVisualizar) : null;
+      const acoes = btnOk ? btnOk.parentElement : null;
+
+      if (!btnOk) return;
+
+      if (modo === 'encerrado') {
+        btnOk.textContent = 'Novo cadastro';
+        if (btnVisualizar) btnVisualizar.style.display = 'block';
+        if (btnCancelar) btnCancelar.style.display = 'block';
+        if (acoes) acoes.classList.add('tres-botoes');
+      } else if (modo === 'confirmar') {
+        btnOk.textContent = 'Cadastrar';
+        if (btnVisualizar) btnVisualizar.style.display = 'none';
+        if (btnCancelar) btnCancelar.style.display = 'block';
+        if (acoes) acoes.classList.remove('tres-botoes');
+        if (acoes) acoes.classList.add('com-duas-botoes');
+      } else {
+        btnOk.textContent = 'OK';
+        if (btnVisualizar) btnVisualizar.style.display = 'none';
+        if (btnCancelar) btnCancelar.style.display = 'none';
+        if (acoes) acoes.classList.remove('com-duas-botoes', 'tres-botoes');
+      }
+    }
+
+    function mostrarModalConfirmacaoCadastro(cpf, aoConfirmar, aoCancelar) {
+      el(cfg.idModalTitulo).textContent = 'CPF não encontrado';
+      el(cfg.idModalDetalhe).textContent = 'O CPF informado não está cadastrado. Deseja iniciar um novo cadastro?';
+      state.modalModo = 'confirmar';
+      state._modalCallbackConfirmar = aoConfirmar;
+      state._modalCallbackCancelar = aoCancelar;
+      state._modalCallbackVisualizar = null;
+      configurarBotoesModal('confirmar');
+      el(cfg.idModal).style.display = 'flex';
+      setTimeout(function() { el(cfg.idModalOk).focus(); }, 50);
+    }
+
+    function mostrarModalEncerrado(cpf, aoNovoCadastro, aoVisualizar, aoCancelar) {
+      el(cfg.idModalTitulo).textContent = 'Registro encerrado';
+      el(cfg.idModalDetalhe).textContent = 'Este CPF possui registro com Motivo do Encerramento preenchido. Deseja criar um novo cadastro ou apenas visualizar o registro existente?';
+      state.modalModo = 'encerrado';
+      state._modalCallbackConfirmar = aoNovoCadastro;
+      state._modalCallbackVisualizar = aoVisualizar;
+      state._modalCallbackCancelar = aoCancelar;
+      configurarBotoesModal('encerrado');
+      el(cfg.idModal).style.display = 'flex';
+      setTimeout(function() { el(cfg.idModalOk).focus(); }, 50);
+    }
+
+    function buscar(forcar) {
+      if (state.buscando) return;
+      const cpf = el(cfg.idCpf).value.trim();
+      const cpfLimpo = cpf.replace(/\D/g, '');
+      if (!cpfLimpo) { reset(); return; }
+      if (!forcar && state.cpfValidado && state.modo && cpfLimpo === state.cpfAtual) return;
+
+      state.buscando = true;
+      mostrarMsg('Buscando CPF na base de dados...', 'info');
+
+      google.script.run
+        .withSuccessHandler(function(resposta) {
+          state.buscando = false;
+
+          if (!resposta.encontrado) {
+            mostrarModalConfirmacaoCadastro(cpf, function() {
+              habilitarNovo(cpf);
+            }, function() {
+              reset();
+              el(cfg.idCpf).focus();
+            });
+            return;
+          }
+
+          if (resposta.encerrado) {
+            mostrarModalEncerrado(cpf, function() {
+              habilitarNovo(cpf);
+            }, function() {
+              aplicarVisualizacao(resposta.dados, resposta.preenchidos);
+            }, function() {
+              reset();
+              el(cfg.idCpf).focus();
+            });
+            return;
+          }
+
+          state.modo = 'existente';
+          state.linhaPlanilha = resposta.linha;
+          state.cpfValidado = true;
+          state.cpfAtual = cpfLimpo;
+          aplicarEstadoFormulario(resposta.dados, resposta.preenchidos, 'existente');
+          mostrarMsg('CPF encontrado. Edite apenas os campos em branco.', 'ok');
+        })
+        .withFailureHandler(function(erro) {
+          state.buscando = false;
+          mostrarMsg('Erro na busca: ' + erro.message, 'erro');
+        })
+        .buscarRegistroPorCpf(cpf, cfg.aba);
+    }
+
+    function coletarDados() {
+      const dados = {};
+      cfg.campos.forEach(function(c) { dados[c.key] = el(c.id) ? el(c.id).value : ''; });
+      if (cfg.onColetarDados) cfg.onColetarDados(dados);
+      return dados;
+    }
+
+    function mostrarModal(resposta, aoFechar) {
+      state.modalModo = 'ok';
+      configurarBotoesModal('ok');
+      el(cfg.idModalTitulo).textContent = resposta.mensagem;
+      const detalhe = el(cfg.idModalDetalhe);
+      if (resposta.sucesso === false) {
+        detalhe.textContent = '';
+        detalhe.style.display = 'none';
+      } else {
+        detalhe.style.display = 'block';
+        detalhe.textContent = resposta.camposPreenchidos + ' campo(s) preenchido(s).';
+      }
+      el(cfg.idModal).style.display = 'flex';
+      state._modalCallback = aoFechar || null;
+      const btnOk = el(cfg.idModalOk);
+      btnOk.onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); fecharModal(); }
+      };
+      setTimeout(function() { btnOk.focus(); }, 50);
+    }
+
+    function fecharModalConfirmacao(acao) {
+      el(cfg.idModal).style.display = 'none';
+      configurarBotoesModal('ok');
+      const modoAnterior = state.modalModo;
+      state.modalModo = 'ok';
+
+      if (acao === 'confirmar' && typeof state._modalCallbackConfirmar === 'function') {
+        state._modalCallbackConfirmar();
+      } else if (acao === 'visualizar' && typeof state._modalCallbackVisualizar === 'function') {
+        state._modalCallbackVisualizar();
+      } else if (acao === 'cancelar' && typeof state._modalCallbackCancelar === 'function') {
+        state._modalCallbackCancelar();
+      } else if (modoAnterior === 'confirmar' && acao !== 'confirmar' && typeof state._modalCallbackCancelar === 'function') {
+        state._modalCallbackCancelar();
+      }
+
+      state._modalCallbackConfirmar = null;
+      state._modalCallbackVisualizar = null;
+      state._modalCallbackCancelar = null;
+    }
+
+    function fecharModal() {
+      if (state.modalModo === 'confirmar' || state.modalModo === 'encerrado') {
+        fecharModalConfirmacao('cancelar');
+        return;
+      }
+
+      el(cfg.idModal).style.display = 'none';
+      if (typeof state._modalCallback === 'function') {
+        state._modalCallback();
+        state._modalCallback = null;
+      }
+    }
+
+    function tratarResposta(resposta) {
+      if (typeof resposta === 'string') {
+        resposta = { sucesso: true, mensagem: resposta, camposPreenchidos: 0 };
+      }
+      const btn = el(cfg.idBtnSalvar);
+      btn.disabled = false;
+      btn.textContent = 'SALVAR REGISTRO';
+      if (!resposta.sucesso) { mostrarModal(resposta, null); return; }
+      mostrarModal(resposta, function() {
+        if (state.modo === 'novo') {
+          reset();
+        } else {
+          const cpfAtual = el(cfg.idCpf).value.trim();
+          state.modo = null;
+          state.linhaPlanilha = null;
+          state.cpfValidado = false;
+          state.cpfAtual = '';
+          el(cfg.idCpf).value = cpfAtual;
+          buscar(true);
+        }
+      });
+    }
+
+    function salvar() {
+      if (!sessaoAtual) { alert('Sessão expirada. Faça login novamente.'); return; }
+      if (state.modo === 'visualizar') return;
+      if (!state.cpfValidado || !state.modo) {
+        alert('Informe e valide o CPF antes de salvar.');
+        el(cfg.idCpf).focus();
+        return;
+      }
+
+      const btn = el(cfg.idBtnSalvar);
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+      const linha = state.modo === 'existente' ? state.linhaPlanilha : null;
+
+      google.script.run
+        .withSuccessHandler(tratarResposta)
+        .withFailureHandler(function(erro) {
+          tratarResposta({ sucesso: false, mensagem: 'Erro ao salvar: ' + erro.message, camposPreenchidos: 0 });
+        })
+        .salvarRegistro(cfg.aba, coletarDados(), sessaoAtual, linha);
+    }
+
+    gerenciadoresLivros[cfg.aba] = { reset: reset, buscar: buscar, salvar: salvar, fecharModal: fecharModal, init: cfg.onInit || reset };
+
+    const btnOk = el(cfg.idModalOk);
+    const btnCancelar = cfg.idModalCancelar ? el(cfg.idModalCancelar) : null;
+    const btnVisualizar = cfg.idModalVisualizar ? el(cfg.idModalVisualizar) : null;
+
+    if (btnOk) {
+      btnOk.addEventListener('click', function() {
+        if (state.modalModo === 'confirmar' || state.modalModo === 'encerrado') fecharModalConfirmacao('confirmar');
+        else fecharModal();
+      });
+    }
+    if (btnCancelar) {
+      btnCancelar.addEventListener('click', function() {
+        fecharModalConfirmacao('cancelar');
+      });
+    }
+    if (btnVisualizar) {
+      btnVisualizar.addEventListener('click', function() {
+        fecharModalConfirmacao('visualizar');
+      });
+    }
+
+    const campoCpf = el(cfg.idCpf);
+    if (campoCpf) {
+      campoCpf.addEventListener('input', function() {
+        const atual = campoCpf.value.replace(/\D/g, '');
+        if (!state.cpfValidado || !state.cpfAtual || atual === state.cpfAtual) return;
+
+        const modoAnterior = state.modo;
+        state.cpfValidado = false;
+        state.modo = null;
+        state.linhaPlanilha = null;
+        state.cpfAtual = '';
+
+        if (modoAnterior === 'novo' || modoAnterior === 'visualizar') {
+          bloquearCamposAguardandoBusca();
+        } else {
+          cfg.campos.forEach(function(c) {
+            if (c.key !== cfg.chaveBusca) definirCampo(c.id, '', true);
+          });
+          if (cfg.onBloquearCampos) cfg.onBloquearCampos();
+        }
+
+        garantirCpfEditavel(campoCpf.value);
+        if (el(cfg.idBtnSalvar)) el(cfg.idBtnSalvar).disabled = true;
+        mostrarMsg('CPF alterado. Saia do campo ou pressione Enter para buscar novamente.', 'info');
+      });
+    }
+  }
+</script>

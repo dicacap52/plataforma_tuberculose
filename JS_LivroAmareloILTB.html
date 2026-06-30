@@ -1,0 +1,41 @@
+<script>
+  registrarLivro({
+    aba: 'Livro Amarelo - ILTB',
+    idCpf: 'iltb_cpf',
+    chaveBusca: 'cpf',
+    idMsgBusca: 'msgBuscaIltb',
+    idBtnSalvar: 'btnSalvarLivroAmareloILTB',
+    idModal: 'modalSucessoIltb',
+    idModalTitulo: 'modalSucessoTituloIltb',
+    idModalDetalhe: 'modalSucessoDetalheIltb',
+    idModalOk: 'btnModalSucessoOkIltb',
+    idModalCancelar: 'btnModalCancelarIltb',
+    idModalVisualizar: 'btnModalVisualizarIltb',
+    idPrimeiroCampo: 'iltb_sinan',
+    campos: [
+      { id: 'iltb_cpf', key: 'cpf' },
+      { id: 'iltb_sinan', key: 'sinan' },
+      { id: 'iltb_prontuario', key: 'prontuario' },
+      { id: 'iltb_notificacao', key: 'notificacao' },
+      { id: 'iltb_identificacaoIndice', key: 'identificacaoIndice' },
+      { id: 'iltb_nomePaciente', key: 'nomePaciente' },
+      { id: 'iltb_idade', key: 'idade' },
+      { id: 'iltb_sexo', key: 'sexo' },
+      { id: 'iltb_baciloscopiaTrm', key: 'baciloscopiaTrm' },
+      { id: 'iltb_ppd', key: 'ppd' },
+      { id: 'iltb_rx', key: 'rx' },
+      { id: 'iltb_hiv', key: 'hiv' },
+      { id: 'iltb_esquema', key: 'esquema' },
+      { id: 'iltb_dataInicio', key: 'dataInicio' },
+      { id: 'iltb_tdo', key: 'tdo' },
+      { id: 'iltb_tarv', key: 'tarv' },
+      { id: 'iltb_motivoEnc', key: 'motivoEnc' },
+      { id: 'iltb_dataEnc', key: 'dataEnc' }
+    ]
+  });
+
+  function inicializarLivroAmareloILTB() { gerenciadoresLivros['Livro Amarelo - ILTB'].init(); }
+  function buscarCpfLivroAmareloILTB(forcar) { gerenciadoresLivros['Livro Amarelo - ILTB'].buscar(forcar); }
+  function salvarLivroAmareloILTB() { gerenciadoresLivros['Livro Amarelo - ILTB'].salvar(); }
+  function fecharModalSucessoLivroAmareloILTB() { gerenciadoresLivros['Livro Amarelo - ILTB'].fecharModal(); }
+</script>

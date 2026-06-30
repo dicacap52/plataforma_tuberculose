@@ -1,0 +1,47 @@
+<div id="telaLivroAmareloILTB" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
+  <div style="margin-bottom: 16px;">
+    <button onclick="voltarAoDashboard()" style="background:none;border:none;color:#154c79;font-size:14px;font-weight:600;cursor:pointer;">← Voltar ao Dashboard</button>
+  </div>
+  <div style="background-color:#FFFF00;padding:15px;border-radius:10px 10px 0 0;text-align:center;">
+    <h2 style="color:#422006;">Livro Amarelo - ILTB</h2>
+  </div>
+  <div style="background:white;padding:20px;border-radius:0 0 10px 10px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+    <h4 style="margin-bottom:10px;color:#CA8A04;">Identificação</h4>
+    <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">CPF *</label>
+    <input type="text" id="iltb_cpf" class="form-input" placeholder="Digite o CPF"
+      onblur="buscarCpfLivroAmareloILTB()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAmareloILTB(true);}">
+    <input type="text" id="iltb_sinan" class="form-input campo-livro" placeholder="Nº do SINAN" disabled>
+    <input type="text" id="iltb_prontuario" class="form-input campo-livro" placeholder="Nº do Prontuário" disabled>
+    <input type="text" id="iltb_notificacao" class="form-input campo-livro" placeholder="Nº da Notificação" disabled>
+    <input type="text" id="iltb_identificacaoIndice" class="form-input campo-livro" placeholder="Identificação do Paciente Índice" disabled>
+    <input type="text" id="iltb_nomePaciente" class="form-input campo-livro" placeholder="Nome do Paciente" disabled>
+    <input type="number" id="iltb_idade" class="form-input campo-livro" placeholder="Idade" disabled>
+    <select id="iltb_sexo" class="form-input campo-livro" disabled><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
+    <p id="msgBuscaIltb" class="feedback-msg" style="display:none;margin-top:12px;"></p>
+    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Diagnóstico e Tratamento</h4>
+    <input type="text" id="iltb_baciloscopiaTrm" class="form-input campo-livro" placeholder="Baciloscopia TRM-TB" disabled>
+    <input type="text" id="iltb_ppd" class="form-input campo-livro" placeholder="PPD" disabled>
+    <input type="text" id="iltb_rx" class="form-input campo-livro" placeholder="Radiografia do Tórax" disabled>
+    <input type="text" id="iltb_hiv" class="form-input campo-livro" placeholder="Teste HIV" disabled>
+    <input type="text" id="iltb_esquema" class="form-input campo-livro" placeholder="Esquema de Tratamento" disabled>
+    <input type="date" id="iltb_dataInicio" class="form-input campo-livro" disabled>
+    <input type="text" id="iltb_tdo" class="form-input campo-livro" placeholder="TDO" disabled>
+    <input type="text" id="iltb_tarv" class="form-input campo-livro" placeholder="TARV" disabled>
+    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Encerramento</h4>
+    <input type="text" id="iltb_motivoEnc" class="form-input campo-livro" placeholder="Motivo do Encerramento" disabled>
+    <input type="date" id="iltb_dataEnc" class="form-input campo-livro" disabled>
+    <button id="btnSalvarLivroAmareloILTB" onclick="salvarLivroAmareloILTB()" disabled
+      style="width:100%;padding:15px;background:#FFFF00;border:none;border-radius:5px;margin-top:20px;font-weight:bold;color:#422006;cursor:pointer;">SALVAR REGISTRO</button>
+  </div>
+  <div id="modalSucessoIltb" class="modal-overlay-livro-verde" style="display:none;">
+    <div class="modal-box-livro-verde">
+      <p id="modalSucessoTituloIltb" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>
+      <p id="modalSucessoDetalheIltb" class="modal-detalhe-livro-verde"></p>
+      <div class="modal-acoes-livro-verde">
+        <button id="btnModalVisualizarIltb" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalCancelarIltb" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
+        <button id="btnModalSucessoOkIltb" type="button" class="btn-modal-ok-livro-verde">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
