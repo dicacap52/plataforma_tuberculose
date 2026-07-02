@@ -146,6 +146,7 @@
       const btnOk = el(cfg.idModalOk);
       const btnCancelar = cfg.idModalCancelar ? el(cfg.idModalCancelar) : null;
       const btnVisualizar = cfg.idModalVisualizar ? el(cfg.idModalVisualizar) : null;
+      const btnVerLivro = cfg.idModalVerLivro ? el(cfg.idModalVerLivro) : null;
       const acoes = btnOk ? btnOk.parentElement : null;
 
       if (!btnOk) return;
@@ -153,17 +154,28 @@
       if (modo === 'encerrado') {
         btnOk.textContent = 'Novo cadastro';
         if (btnVisualizar) btnVisualizar.style.display = 'block';
+        if (btnVerLivro) btnVerLivro.style.display = 'none';
         if (btnCancelar) btnCancelar.style.display = 'block';
         if (acoes) acoes.classList.add('tres-botoes');
+        if (acoes) acoes.classList.remove('com-duas-botoes');
       } else if (modo === 'confirmar') {
         btnOk.textContent = 'Cadastrar';
         if (btnVisualizar) btnVisualizar.style.display = 'none';
+        if (btnVerLivro) btnVerLivro.style.display = 'none';
         if (btnCancelar) btnCancelar.style.display = 'block';
+        if (acoes) acoes.classList.remove('tres-botoes');
+        if (acoes) acoes.classList.add('com-duas-botoes');
+      } else if (modo === 'sucesso') {
+        btnOk.textContent = 'OK';
+        if (btnVisualizar) btnVisualizar.style.display = 'none';
+        if (btnVerLivro) btnVerLivro.style.display = 'block';
+        if (btnCancelar) btnCancelar.style.display = 'none';
         if (acoes) acoes.classList.remove('tres-botoes');
         if (acoes) acoes.classList.add('com-duas-botoes');
       } else {
         btnOk.textContent = 'OK';
         if (btnVisualizar) btnVisualizar.style.display = 'none';
+        if (btnVerLivro) btnVerLivro.style.display = 'none';
         if (btnCancelar) btnCancelar.style.display = 'none';
         if (acoes) acoes.classList.remove('com-duas-botoes', 'tres-botoes');
       }
@@ -251,8 +263,13 @@
     }
 
     function mostrarModal(resposta, aoFechar) {
-      state.modalModo = 'ok';
-      configurarBotoesModal('ok');
+      if (resposta.sucesso !== false && cfg.idModalVerLivro) {
+        state.modalModo = 'sucesso';
+        configurarBotoesModal('sucesso');
+      } else {
+        state.modalModo = 'ok';
+        configurarBotoesModal('ok');
+      }
       el(cfg.idModalTitulo).textContent = resposta.mensagem;
       const detalhe = el(cfg.idModalDetalhe);
       if (resposta.sucesso === false) {
@@ -355,6 +372,7 @@
     const btnOk = el(cfg.idModalOk);
     const btnCancelar = cfg.idModalCancelar ? el(cfg.idModalCancelar) : null;
     const btnVisualizar = cfg.idModalVisualizar ? el(cfg.idModalVisualizar) : null;
+    const btnVerLivro = cfg.idModalVerLivro ? el(cfg.idModalVerLivro) : null;
 
     if (btnOk) {
       btnOk.addEventListener('click', function() {
@@ -370,6 +388,18 @@
     if (btnVisualizar) {
       btnVisualizar.addEventListener('click', function() {
         fecharModalConfirmacao('visualizar');
+      });
+    }
+    if (btnVerLivro) {
+      btnVerLivro.addEventListener('click', function() {
+        if (typeof abrirVisualizacaoLivro === 'function') abrirVisualizacaoLivro(cfg.aba);
+      });
+    }
+
+    const btnVerLivroFormulario = cfg.idBtnVerLivro ? el(cfg.idBtnVerLivro) : null;
+    if (btnVerLivroFormulario) {
+      btnVerLivroFormulario.addEventListener('click', function() {
+        if (typeof abrirVisualizacaoLivro === 'function') abrirVisualizacaoLivro(cfg.aba);
       });
     }
 

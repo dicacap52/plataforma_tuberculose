@@ -59,9 +59,12 @@
           </select>
           <input type="text" id="azul_numeroGal" class="form-input" placeholder="Nº do GAL" disabled>
 
-          <button id="btnSalvarLivroAzul" type="button" onclick="salvarLivroAzul()" disabled class="btn-salvar-livro-azul">
-            SALVAR REGISTRO
-          </button>
+          <div class="livro-acoes-formulario">
+            <button id="btnVerLivroAzul" type="button" class="btn-ver-livro-formulario btn-ver-livro-azul">Visualizar Livro</button>
+            <button id="btnSalvarLivroAzul" type="button" onclick="salvarLivroAzul()" disabled class="btn-salvar-livro-azul">
+              SALVAR REGISTRO
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -102,6 +105,7 @@
       <p id="modalSucessoDetalheAzul" class="modal-detalhe-livro-verde"></p>
       <div class="modal-acoes-livro-verde">
         <button id="btnModalVisualizarAzul" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalVerLivroAzul" type="button" class="btn-modal-ver-livro" style="display:none;">Visualizar Livro</button>
         <button id="btnModalCancelarAzul" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
         <button id="btnModalSucessoOkAzul" type="button" class="btn-modal-ok-livro-verde">OK</button>
       </div>

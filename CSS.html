@@ -119,6 +119,28 @@
   .secao-titulo-verde:not(:first-child) { margin-top: 20px; }
   .form-label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin: 10px 0 6px; }
   .form-label:first-of-type { margin-top: 0; }
+  .livro-acoes-formulario {
+    display: flex; flex-direction: column; gap: 10px; margin-top: 20px;
+  }
+  .livro-acoes-formulario .btn-salvar-livro-verde,
+  .livro-acoes-formulario .btn-salvar-livro-azul,
+  .livro-acoes-formulario .btn-salvar-livro-amarelo-cont,
+  .livro-acoes-formulario .btn-salvar-livro-amarelo-iltb {
+    margin-top: 0;
+  }
+  .btn-ver-livro-formulario {
+    width: 100%; padding: 14px 15px; border-radius: 5px; font-weight: 600; font-size: 15px;
+    cursor: pointer; background: #FFFFFF; border: 2px solid #154c79; color: #154c79;
+  }
+  .btn-ver-livro-formulario:hover { background: #EFF6FF; }
+  .btn-ver-livro-verde { border-color: #166534; color: #166534; }
+  .btn-ver-livro-verde:hover { background: #ECFDF5; }
+  .btn-ver-livro-azul { border-color: #157CB3; color: #157CB3; }
+  .btn-ver-livro-azul:hover { background: #EFF6FF; }
+  .btn-ver-livro-contatos { border-color: #CA8A04; color: #92400E; }
+  .btn-ver-livro-contatos:hover { background: #FFFBEB; }
+  .btn-ver-livro-iltb { border-color: #CA8A04; color: #854D0E; }
+  .btn-ver-livro-iltb:hover { background: #FEFCE8; }
   .btn-salvar-livro-verde {
     width: 100%; padding: 15px; background: #5CE65C; border: none; border-radius: 5px;
     margin-top: 20px; font-weight: bold; font-size: 15px; cursor: pointer; color: #064E3B;
@@ -492,7 +514,7 @@
   }
   .modal-box-livro-verde {
     background: #FFFFFF; border-radius: 12px; padding: 28px 24px 20px;
-    max-width: 360px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.18); text-align: center;
+    max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.18); text-align: center;
   }
   .modal-titulo-livro-verde {
     color: #000000; font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.4;
@@ -525,6 +547,73 @@
   }
   .btn-modal-visualizar-livro-verde:hover { background: #EFF6FF; }
   .btn-modal-visualizar-livro-verde:focus { outline: none; box-shadow: 0 0 0 3px rgba(21, 76, 121, 0.25); }
+  .btn-modal-ver-livro {
+    width: 100%; padding: 12px; background: #FFFFFF; color: #154c79; border: 2px solid #154c79;
+    border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .btn-modal-ver-livro:hover { background: #EFF6FF; }
+  .btn-modal-ver-livro:focus { outline: none; box-shadow: 0 0 0 3px rgba(21, 76, 121, 0.25); }
+  .modal-acoes-livro-verde.com-duas-botoes .btn-modal-ver-livro { flex: 1; width: auto; }
+
+  /* Visualização do livro (somente leitura) */
+  .modal-visualizar-livro-overlay {
+    position: fixed; inset: 0; background: #FFFFFF;
+    z-index: 11000; padding: 0;
+  }
+  .modal-visualizar-livro-box {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    background: #FFFFFF; border-radius: 0;
+    display: flex; flex-direction: column; box-shadow: none; overflow: hidden;
+  }
+  .modal-visualizar-livro-cabecalho {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    padding: 20px 24px 12px; border-bottom: 1px solid #E2E8F0;
+  }
+  .modal-visualizar-livro-titulo {
+    margin: 0; font-size: 18px; font-weight: 700; color: #0F172A; line-height: 1.3;
+  }
+  .modal-visualizar-livro-subtitulo {
+    margin: 6px 0 0; font-size: 13px; color: #64748B;
+  }
+  .btn-fechar-visualizar-livro {
+    border: none; background: #F1F5F9; color: #334155; width: 36px; height: 36px;
+    border-radius: 8px; font-size: 24px; line-height: 1; cursor: pointer; flex-shrink: 0;
+  }
+  .btn-fechar-visualizar-livro:hover { background: #E2E8F0; }
+  .modal-visualizar-livro-conteudo {
+    padding: 12px 24px; overflow: hidden; flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+  }
+  .modal-visualizar-livro-rodape {
+    padding: 12px 24px 20px; border-top: 1px solid #E2E8F0; text-align: right;
+  }
+  .modal-visualizar-livro-rodape .btn-modal-ok-livro-verde { width: auto; min-width: 120px; }
+  .visualizar-livro-loading,
+  .visualizar-livro-vazio,
+  .visualizar-livro-erro {
+    margin: 0; padding: 24px 0; text-align: center; color: #475569; font-size: 15px;
+  }
+  .visualizar-livro-erro { color: #B91C1C; }
+  .visualizar-livro-info {
+    margin: 0 0 12px; font-size: 13px; color: #64748B; font-weight: 500;
+  }
+  .visualizar-livro-tabela-wrap {
+    overflow: auto; border: 1px solid #E2E8F0; border-radius: 8px; flex: 1; min-height: 0;
+  }
+  .visualizar-livro-tabela {
+    width: 100%; border-collapse: collapse; font-size: 13px; user-select: text;
+  }
+  .visualizar-livro-tabela th,
+  .visualizar-livro-tabela td {
+    padding: 10px 12px; border-bottom: 1px solid #E2E8F0; text-align: left;
+    white-space: nowrap; vertical-align: top;
+  }
+  .visualizar-livro-tabela th {
+    position: sticky; top: 0; background: #F8FAFC; color: #0F172A; font-weight: 700; z-index: 1;
+  }
+  .visualizar-livro-tabela tbody tr:hover { background: #F8FAFC; }
+  .visualizar-livro-tabela tbody tr:last-child td { border-bottom: none; }
 
   /* ==================================================================
      RESPONSIVIDADE

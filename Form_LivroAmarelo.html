@@ -82,9 +82,12 @@
           </select>
           <input type="date" id="cont_data" class="form-input" disabled>
 
-          <button id="btnSalvarLivroAmarelo" type="button" onclick="salvarLivroAmarelo()" disabled class="btn-salvar-livro-amarelo-cont">
-            SALVAR REGISTRO
-          </button>
+          <div class="livro-acoes-formulario">
+            <button id="btnVerLivroContatos" type="button" class="btn-ver-livro-formulario btn-ver-livro-contatos">Visualizar Livro</button>
+            <button id="btnSalvarLivroAmarelo" type="button" onclick="salvarLivroAmarelo()" disabled class="btn-salvar-livro-amarelo-cont">
+              SALVAR REGISTRO
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -151,6 +154,7 @@
       <p id="modalSucessoDetalheContatos" class="modal-detalhe-livro-verde"></p>
       <div class="modal-acoes-livro-verde">
         <button id="btnModalVisualizarContatos" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalVerLivroContatos" type="button" class="btn-modal-ver-livro" style="display:none;">Visualizar Livro</button>
         <button id="btnModalCancelarContatos" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
         <button id="btnModalSucessoOkContatos" type="button" class="btn-modal-ok-livro-verde">OK</button>
       </div>

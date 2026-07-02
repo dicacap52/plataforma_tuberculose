@@ -17,7 +17,8 @@ const CONFIG_LIVROS = {
       'formaClinica', 'tipoEntrada', 'esquema', 'dataInicio', 'tdo', 'tarv'
     ],
     meses: 12,
-    encerramento: ['motivoEnc', 'dataEnc', 'contIdent', 'contExam', 'obs']
+    encerramento: ['motivoEnc', 'dataEnc', 'contIdent', 'contExam', 'obs'],
+    camposIdentificacao: ['cpf', 'sinan', 'prontuario', 'nomePaciente', 'idade', 'sexo']
   },
   'Livro Amarelo - ILTB': {
     chaveBusca: 'cpf',
@@ -28,7 +29,8 @@ const CONFIG_LIVROS = {
       'motivoEnc', 'dataEnc'
     ],
     meses: 0,
-    encerramento: []
+    encerramento: [],
+    camposIdentificacao: ['cpf', 'sinan', 'prontuario', 'notificacao', 'identificacaoIndice', 'nomePaciente', 'idade', 'sexo']
   },
   'Livro Azul - Sintomático Respiratório': {
     chaveBusca: 'cpf',
@@ -39,7 +41,8 @@ const CONFIG_LIVROS = {
       'dataTrm', 'resultadoTrm', 'numeroGal'
     ],
     meses: 0,
-    encerramento: []
+    encerramento: [],
+    camposIdentificacao: ['cpf', 'sinan', 'sequencial', 'entregaAmostra', 'nomeCompleto', 'idade', 'sexo', 'endereco']
   },
   'Livro Amarelo - Contatos': {
     chaveBusca: 'cpf',
@@ -50,7 +53,8 @@ const CONFIG_LIVROS = {
       'dataAntiHiv', 'resultadoHiv', 'destino', 'data'
     ],
     meses: 0,
-    encerramento: []
+    encerramento: [],
+    camposIdentificacao: ['cpf', 'sinanIndice', 'prontuario', 'nomeContato', 'idade', 'sexo', 'grauParentesco']
   }
 };
 
@@ -394,4 +398,66 @@ function salvarRegistro(nomeAbaDestino, dadosFormulario, dadosSessao, numeroLinh
   }
 
   return respostaSalvamento('novo', 'Registro salvo com sucesso', contarCamposPreenchidosFormulario(dadosFormulario, config));
+}
+
+function obterIndiceColunaPorChave(config, chave) {
+  if (/^mes\d+$/.test(chave)) {
+    const numero = parseInt(chave.replace('mes', ''), 10);
+    if (numero >= 1 && numero <= (config.meses || 0)) {
+      return COL_INICIO_DADOS + config.campos.length + (numero - 1);
+    }
+    return -1;
+  }
+  return obterIndiceColunaCampo(config, chave);
+}
+
+function obterIndicesColunasVisiveis(config) {
+  const ocultar = {};
+  (config.camposIdentificacao || []).forEach(function(chave) { ocultar[chave] = true; });
+
+  const indices = [];
+  obterChavesFormulario(config).forEach(function(chave) {
+    if (ocultar[chave]) return;
+    const indice = obterIndiceColunaPorChave(config, chave);
+    if (indice >= 0) indices.push(indice);
+  });
+
+  const inicioMetadados = obterIndiceInicioMetadados(config);
+  for (let offset = 0; offset < QTD_COLS_METADADOS; offset++) {
+    indices.push(inicioMetadados + offset);
+  }
+
+  return indices;
+}
+
+function obterPlanilhaParaVisualizacao(nomeAba) {
+  const config = obterConfigLivro(nomeAba);
+  const sheet = obterPlanilha().getSheetByName(nomeAba);
+  if (!sheet) throw new Error("Aba '" + nomeAba + "' não encontrada.");
+
+  const indices = obterIndicesColunasVisiveis(config);
+  const dados = sheet.getDataRange().getValues();
+  if (!dados.length) {
+    return { titulo: nomeAba, titulos: [], linhas: [], totalRegistros: 0 };
+  }
+
+  const cabecalho = dados[0];
+  const titulos = indices.map(function(indice) {
+    const titulo = String(cabecalho[indice] || '').trim();
+    return titulo || ('Coluna ' + (indice + 1));
+  });
+
+  const linhas = [];
+  for (let linha = 1; linha < dados.length; linha++) {
+    const valores = dados[linha];
+    if (indices.every(function(indice) { return celulaVazia(valores[indice]); })) continue;
+    linhas.push(indices.map(function(indice) { return formatarValorCelula(valores[indice]); }));
+  }
+
+  return {
+    titulo: nomeAba,
+    titulos: titulos,
+    linhas: linhas,
+    totalRegistros: linhas.length
+  };
 }

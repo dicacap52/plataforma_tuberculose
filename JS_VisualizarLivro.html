@@ -1,0 +1,73 @@
+<script>
+  function escapeHtmlVisualizarLivro(valor) {
+    return String(valor == null ? '' : valor)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderizarTabelaVisualizacaoLivro(container, dados) {
+    if (!dados.linhas || !dados.linhas.length) {
+      container.innerHTML = '<p class="visualizar-livro-vazio">Nenhum registro encontrado neste livro.</p>';
+      return;
+    }
+
+    let html = '<p class="visualizar-livro-info">' + dados.totalRegistros + ' registro(s) exibido(s)</p>';
+    html += '<div class="visualizar-livro-tabela-wrap"><table class="visualizar-livro-tabela"><thead><tr>';
+    dados.titulos.forEach(function(titulo) {
+      html += '<th>' + escapeHtmlVisualizarLivro(titulo) + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    dados.linhas.forEach(function(linha) {
+      html += '<tr>';
+      linha.forEach(function(celula) {
+        html += '<td>' + escapeHtmlVisualizarLivro(celula) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
+
+  function fecharVisualizacaoLivro() {
+    const overlay = document.getElementById('modalVisualizarLivro');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  function abrirVisualizacaoLivro(nomeAba) {
+    const overlay = document.getElementById('modalVisualizarLivro');
+    const titulo = document.getElementById('visualizarLivroTitulo');
+    const conteudo = document.getElementById('visualizarLivroConteudo');
+    if (!overlay || !titulo || !conteudo) return;
+
+    titulo.textContent = 'Carregando...';
+    conteudo.innerHTML = '<p class="visualizar-livro-loading">Carregando dados do livro...</p>';
+    overlay.style.display = 'flex';
+
+    google.script.run
+      .withSuccessHandler(function(dados) {
+        titulo.textContent = dados.titulo || nomeAba;
+        renderizarTabelaVisualizacaoLivro(conteudo, dados);
+      })
+      .withFailureHandler(function(erro) {
+        titulo.textContent = 'Erro ao carregar';
+        conteudo.innerHTML = '<p class="visualizar-livro-erro">' + escapeHtmlVisualizarLivro(erro.message) + '</p>';
+      })
+      .obterPlanilhaParaVisualizacao(nomeAba);
+  }
+
+  (function inicializarVisualizarLivro() {
+    const btnFechar = document.getElementById('btnFecharVisualizarLivro');
+    const btnFecharRodape = document.getElementById('btnFecharVisualizarLivroRodape');
+    const overlay = document.getElementById('modalVisualizarLivro');
+
+    if (btnFechar) btnFechar.addEventListener('click', fecharVisualizacaoLivro);
+    if (btnFecharRodape) btnFecharRodape.addEventListener('click', fecharVisualizacaoLivro);
+    if (overlay) {
+      overlay.addEventListener('click', function(evento) {
+        if (evento.target === overlay) fecharVisualizacaoLivro();
+      });
+    }
+  })();
+</script>

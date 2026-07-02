@@ -89,9 +89,12 @@
           <input type="text" id="iltb_motivoEnc" class="form-input campo-livro" placeholder="Motivo do Encerramento" disabled>
           <input type="date" id="iltb_dataEnc" class="form-input campo-livro" disabled>
 
-          <button id="btnSalvarLivroAmareloILTB" type="button" onclick="salvarLivroAmareloILTB()" disabled class="btn-salvar-livro-amarelo-iltb">
-            SALVAR REGISTRO
-          </button>
+          <div class="livro-acoes-formulario">
+            <button id="btnVerLivroIltb" type="button" class="btn-ver-livro-formulario btn-ver-livro-iltb">Visualizar Livro</button>
+            <button id="btnSalvarLivroAmareloILTB" type="button" onclick="salvarLivroAmareloILTB()" disabled class="btn-salvar-livro-amarelo-iltb">
+              SALVAR REGISTRO
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -190,6 +193,7 @@
       <p id="modalSucessoDetalheIltb" class="modal-detalhe-livro-verde"></p>
       <div class="modal-acoes-livro-verde">
         <button id="btnModalVisualizarIltb" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalVerLivroIltb" type="button" class="btn-modal-ver-livro" style="display:none;">Visualizar Livro</button>
         <button id="btnModalCancelarIltb" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
         <button id="btnModalSucessoOkIltb" type="button" class="btn-modal-ok-livro-verde">OK</button>
       </div>

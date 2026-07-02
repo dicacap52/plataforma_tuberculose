@@ -151,9 +151,12 @@
         <input type="number" id="contExam"  placeholder="Nº contatos examinados"     class="form-input campo-livro-verde" disabled>
         <textarea            id="obs"       placeholder="Observações"                 class="form-input campo-livro-verde" rows="4" disabled></textarea>
 
-        <button id="btnSalvarLivroVerde" type="button" onclick="salvarLivroVerde()" disabled class="btn-salvar-livro-verde">
-          SALVAR REGISTRO
-        </button>
+        <div class="livro-acoes-formulario">
+          <button id="btnVerLivroVerde" type="button" class="btn-ver-livro-formulario btn-ver-livro-verde">Visualizar Livro</button>
+          <button id="btnSalvarLivroVerde" type="button" onclick="salvarLivroVerde()" disabled class="btn-salvar-livro-verde">
+            SALVAR REGISTRO
+          </button>
+        </div>
       </div>
     </div>
     </div>
@@ -324,6 +327,7 @@
       <p id="modalSucessoDetalhe" class="modal-detalhe-livro-verde"></p>
       <div class="modal-acoes-livro-verde">
         <button id="btnModalVisualizarLivroVerde" type="button" class="btn-modal-visualizar-livro-verde" style="display:none;">Visualizar</button>
+        <button id="btnModalVerLivroVerde" type="button" class="btn-modal-ver-livro" style="display:none;">Visualizar Livro</button>
         <button id="btnModalCancelarLivroVerde" type="button" class="btn-modal-cancelar-livro-verde" style="display:none;">Cancelar</button>
         <button id="btnModalSucessoOk" type="button" class="btn-modal-ok-livro-verde">OK</button>
       </div>
