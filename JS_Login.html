@@ -1,5 +1,4 @@
 <script>
-  // Login — modal de CPF não encontrado
   function aplicarMascaraCPF(campo) {
     let v = campo.value;
     v = v.replace(/\D/g, "");
@@ -9,57 +8,36 @@
     campo.value = v;
   }
 
-  function mostrarModalLogin(titulo, detalhe) {
-    const modal = document.getElementById('modalLoginAlerta');
-    const tituloEl = document.getElementById('modalLoginTitulo');
-    const detalheEl = document.getElementById('modalLoginDetalhe');
-    const btnOk = document.getElementById('btnModalLoginOk');
-
-    if (!modal || !tituloEl || !detalheEl) {
-      const msg = document.getElementById('msgErro');
-      if (msg) {
-        msg.textContent = titulo + ' ' + detalhe;
-        msg.className = 'feedback-msg feedback-error';
-        msg.style.display = 'block';
-      }
-      return;
-    }
-
-    tituloEl.textContent = titulo;
-    detalheEl.textContent = detalhe;
-    detalheEl.style.display = 'block';
-    modal.style.display = 'flex';
-
-    if (btnOk) {
-      btnOk.onkeydown = function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); fecharModalLogin(); }
-      };
-      setTimeout(function() { btnOk.focus(); }, 50);
-    }
+  function limparErroLogin() {
+    const msg = document.getElementById('msgErro');
+    if (!msg) return;
+    msg.className = 'feedback-msg';
+    msg.textContent = '';
+    msg.removeAttribute('style');
   }
 
-  function fecharModalLogin() {
-    const modal = document.getElementById('modalLoginAlerta');
-    if (modal) modal.style.display = 'none';
-    const cpfInput = document.getElementById('cpfInput');
-    if (cpfInput) cpfInput.focus();
+  function mostrarErroLogin(html) {
+    const msg = document.getElementById('msgErro');
+    if (!msg) {
+      alert(String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
+      return;
+    }
+    msg.innerHTML = html;
+    msg.className = 'feedback-msg feedback-error';
+    msg.removeAttribute('style');
+    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function solicitarAcesso() {
     const cpf = document.getElementById('cpfInput').value;
     const btn = document.getElementById('btnEntrar');
-    const msg = document.getElementById('msgErro');
 
     if (cpf.length !== 14) {
-      msg.textContent = "Por favor, digite um CPF válido.";
-      msg.className = "feedback-msg feedback-error";
-      msg.style.display = 'block';
+      mostrarErroLogin('Por favor, digite um CPF válido.');
       return;
     }
 
-    msg.style.display = 'none';
-    msg.className = 'feedback-msg';
-    msg.textContent = '';
+    limparErroLogin();
     btn.disabled = true;
     btn.textContent = "Validando...";
 
@@ -71,7 +49,6 @@
 
   function acessoProcessado(resposta) {
     const btn = document.getElementById('btnEntrar');
-    const msg = document.getElementById('msgErro');
 
     btn.disabled = false;
     btn.textContent = "Entrar no Sistema";
@@ -87,24 +64,24 @@
       document.getElementById('telaDashboard').style.display = 'block';
 
       document.getElementById('cpfInput').value = '';
+      limparErroLogin();
       return;
     }
 
-    if (msg) msg.style.display = 'none';
-    mostrarModalLogin(
-      '⚠️ Cadastro não encontrado!',
-      'Não identificamos uma conta associada a este CPF em nosso sistema. Verifique se o CPF foi digitado corretamente ou entre em contato com seu Gestor para solicitar seu cadastro.'
+    const textoServidor = resposta && resposta.erro ? resposta.erro : '';
+    mostrarErroLogin(
+      '<strong>⚠️ Cadastro não encontrado!</strong><br><br>' +
+      'Não identificamos uma conta associada a este CPF em nosso sistema. ' +
+      'Verifique se o CPF foi digitado corretamente ou entre em contato com seu Gestor para solicitar seu cadastro.' +
+      (textoServidor ? '<br><br><small>' + textoServidor + '</small>' : '')
     );
   }
 
   function erroServidor(erro) {
     const btn = document.getElementById('btnEntrar');
-    const msg = document.getElementById('msgErro');
     btn.disabled = false;
     btn.textContent = "Entrar no Sistema";
-    msg.textContent = "Erro de conexão com o servidor. Tente novamente.";
-    msg.className = "feedback-msg feedback-error";
-    msg.style.display = 'block';
+    mostrarErroLogin('Erro de conexão com o servidor. Tente novamente.');
     console.error(erro);
   }
 </script>

@@ -1,6 +1,16 @@
 <script>
   const IDS_TELAS_LIVROS = ['telaLivroVerde', 'telaLivroAmarelo', 'telaLivroAmareloILTB', 'telaLivroAzul'];
 
+  function aplicarImagensCards() {
+    Object.keys(IMAGENS_CARDS_LIVROS).forEach(function(idImg) {
+      const img = document.getElementById(idImg);
+      const url = IMAGENS_CARDS_LIVROS[idImg];
+      if (img && url) img.src = url;
+    });
+  }
+
+  aplicarImagensCards();
+
   function ocultarTelasLivros() {
     IDS_TELAS_LIVROS.forEach(function(id) {
       const el = document.getElementById(id);
@@ -24,18 +34,22 @@
     if (nomeDoLivroDestino === 'Livro Verde - Tratamento') {
       inicializarMeses();
       document.getElementById('telaLivroVerde').style.display = 'block';
+      if (typeof agendarAjusteLayoutLegendaVerde === 'function') agendarAjusteLayoutLegendaVerde();
     }
     else if (nomeDoLivroDestino === 'Livro Amarelo - Contatos') {
       inicializarLivroAmarelo();
       document.getElementById('telaLivroAmarelo').style.display = 'block';
+      if (typeof agendarAjusteLayoutLegendaAmareloCont === 'function') agendarAjusteLayoutLegendaAmareloCont();
     }
     else if (nomeDoLivroDestino === 'Livro Amarelo - ILTB') {
       inicializarLivroAmareloILTB();
       document.getElementById('telaLivroAmareloILTB').style.display = 'block';
+      if (typeof agendarAjusteLayoutLegendaAmareloIltb === 'function') agendarAjusteLayoutLegendaAmareloIltb();
     }
     else if (nomeDoLivroDestino === 'Livro Azul - Sintomático Respiratório') {
       inicializarLivroAzul();
       document.getElementById('telaLivroAzul').style.display = 'block';
+      if (typeof agendarAjusteLayoutLegendaAzul === 'function') agendarAjusteLayoutLegendaAzul();
     }
   }
 

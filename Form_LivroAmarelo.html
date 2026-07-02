@@ -1,41 +1,150 @@
-<div id="telaLivroAmarelo" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
-  <div style="margin-bottom: 16px;">
-    <button onclick="voltarAoDashboard()" style="background:none;border:none;color:#154c79;font-size:14px;font-weight:600;cursor:pointer;">← Voltar ao Dashboard</button>
+<div id="telaLivroAmarelo" class="tela-livro-amarelo-cont" style="display:none;">
+
+  <div id="livroAmareloContShell" class="livro-amarelo-cont-shell">
+    <div id="livroAmareloContCentro" class="livro-amarelo-cont-centro">
+      <div class="livro-amarelo-cont-topo">
+        <button type="button" class="btn-voltar-livro" onclick="voltarAoDashboard()">← Voltar ao Dashboard</button>
+      </div>
+
+      <div id="livroAmareloContFormulario" class="livro-amarelo-cont-formulario">
+        <div class="livro-amarelo-cont-cabecalho">
+          <h2>Livro Amarelo - Contatos</h2>
+        </div>
+
+        <div class="livro-amarelo-cont-corpo">
+          <h4 class="secao-titulo-amarelo-cont">Identificação</h4>
+
+          <label for="cont_cpf" class="form-label">CPF *</label>
+          <input type="text" id="cont_cpf" class="form-input" placeholder="Digite o CPF"
+            maxlength="11" inputmode="numeric" autocomplete="off"
+            onblur="buscarCpfLivroAmarelo()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAmarelo(true);}">
+
+          <input type="text" id="cont_sinanIndice" class="form-input" placeholder="Nº do SINAN do Caso Índice" disabled>
+          <input type="text" id="cont_prontuario" class="form-input" placeholder="Prontuário" disabled>
+          <input type="text" id="cont_nomeContato" class="form-input" placeholder="Nome do Contato" disabled>
+          <input type="number" id="cont_idade" class="form-input" placeholder="Idade" disabled>
+          <select id="cont_sexo" class="form-input" disabled>
+            <option value="">Sexo</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+          </select>
+          <input type="text" id="cont_grauParentesco" class="form-input" placeholder="Grau de Parentesco" disabled>
+
+          <p id="msgBuscaContatos" class="feedback-msg" style="display:none;margin-top:12px;"></p>
+
+          <h4 class="secao-titulo-amarelo-cont">Exames</h4>
+          <select id="cont_ppdAplicado" class="form-input" disabled onchange="atualizarCampoPpdContatos()">
+            <option value="">PPD Aplicado</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
+          <div id="cont_ppdResultadoWrapper" class="ppd-resultado-wrapper" style="display:none;">
+            <input type="text" id="cont_ppdResultado" class="form-input" placeholder="PPD Resultado (mm)" disabled
+              inputmode="decimal" autocomplete="off" oninput="sanitizarPpdResultadoContatos()">
+            <p id="msgPpdResultadoContatos" class="msg-ppd-alerta-contatos" style="display:none;">
+              Atenção! Avaliar se paciente com tuberculose ativa ou ILTB
+            </p>
+          </div>
+          <input type="date" id="cont_dataRaioX" class="form-input" disabled>
+          <select id="cont_resultadoRaioX" class="form-input" disabled>
+            <option value="">Resultado do Raio-X</option>
+            <option value="S">S</option>
+            <option value="N">N</option>
+            <option value="O">O</option>
+            <option value="NR">NR</option>
+          </select>
+          <input type="date" id="cont_data1aBaar" class="form-input" disabled>
+          <select id="cont_resultado1aBaar" class="form-input" disabled>
+            <option value="">Resultado do TRM-TB</option>
+            <option value="SR">SR</option>
+            <option value="RR">RR</option>
+            <option value="ND">ND</option>
+            <option value="DI">DI</option>
+            <option value="MTB">MTB</option>
+            <option value="N/Re">N/Re</option>
+          </select>
+          <input type="date" id="cont_dataAntiHiv" class="form-input" disabled>
+          <select id="cont_resultadoHiv" class="form-input" disabled>
+            <option value="">Resultado do Teste HIV</option>
+            <option value="P">P</option>
+            <option value="N">N</option>
+            <option value="NR">NR</option>
+          </select>
+
+          <h4 class="secao-titulo-amarelo-cont">Destino</h4>
+          <select id="cont_destino" class="form-input" disabled>
+            <option value="">Destino</option>
+            <option value="Iniciado Tratamento Tuberculose">Iniciado Tratamento Tuberculose</option>
+            <option value="Iniciado ILTB (Quimioprofilaxia)">Iniciado ILTB (Quimioprofilaxia)</option>
+            <option value="Realizado">Realizado</option>
+            <option value="Orientação">Orientação</option>
+            <option value="Recusa do Paciente">Recusa do Paciente</option>
+          </select>
+          <input type="date" id="cont_data" class="form-input" disabled>
+
+          <button id="btnSalvarLivroAmarelo" type="button" onclick="salvarLivroAmarelo()" disabled class="btn-salvar-livro-amarelo-cont">
+            SALVAR REGISTRO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="livroAmareloContLegenda" class="livro-amarelo-cont-legenda" aria-label="Legenda para preenchimento do Livro">
+      <div class="legenda-cabecalho">
+        <h3>Legenda para preenchimento do Livro</h3>
+      </div>
+
+      <div class="legenda-conteudo">
+        <section class="legenda-secao">
+          <h4>Radiografia do tórax</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">N</span> para aspecto normal.</li>
+            <li><span class="codigo">Sug</span> para imagem sugestiva de TB.</li>
+            <li><span class="codigo">Seq</span> para sequela, quando houver imagem sugestiva de lesão cicatricial.</li>
+            <li><span class="codigo">OP</span> para imagem sugestiva de outra patologia não tuberculosa.</li>
+            <li><span class="codigo">NR</span> para não realizada.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Teste Molecular Rápido TB - (TRM-TB)</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">SR</span>para detectável sensível à rifampicina.</li>
+            <li><span class="codigo">RR</span>para detectável resistente à rifampicina.</li>
+            <li><span class="codigo">ND</span>para não detectável.</li>
+            <li><span class="codigo">DI</span>para detectável indeterminado (inconclusivo).</li>
+            <li><span class="codigo">MTB</span>para MTB detectado - Traços.</li>
+            <li><span class="codigo">N/Re</span>para não realizado.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Teste HIV</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">P</span> Positivo</li>
+            <li><span class="codigo">N</span> Negativo</li>
+            <li><span class="codigo">NR</span> Não realizado</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Destino</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-opcoes-texto">
+            <li><span class="codigo">Iniciado Tratamento Tuberculose</span></li>
+            <li><span class="codigo">Iniciado ILTB (Quimioprofilaxia)</span></li>
+            <li><span class="codigo">Realizado</span></li>
+            <li><span class="codigo">Orientação</span></li>
+            <li><span class="codigo">Recusa do Paciente</span></li>
+          </ul>
+        </section>
+      </div>
+    </aside>
   </div>
-  <div style="background-color:#FFD700;padding:15px;border-radius:10px 10px 0 0;text-align:center;">
-    <h2 style="color:#422006;">Livro Amarelo - Contatos</h2>
-  </div>
-  <div style="background:white;padding:20px;border-radius:0 0 10px 10px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-    <h4 style="margin-bottom:10px;color:#CA8A04;">Identificação</h4>
-    <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">CPF *</label>
-    <input type="text" id="cont_cpf" class="form-input" placeholder="Digite o CPF"
-      onblur="buscarCpfLivroAmarelo()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAmarelo(true);}">
-    <input type="text" id="cont_sinanIndice" class="form-input" placeholder="Nº do SINAN do Caso Índice" disabled>
-    <input type="text" id="cont_prontuario" class="form-input" placeholder="Prontuário" disabled>
-    <input type="text" id="cont_nomeContato" class="form-input" placeholder="Nome do Contato" disabled>
-    <input type="number" id="cont_idade" class="form-input" placeholder="Idade" disabled>
-    <select id="cont_sexo" class="form-input" disabled><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
-    <input type="text" id="cont_grauParentesco" class="form-input" placeholder="Grau de Parentesco" disabled>
-    <p id="msgBuscaContatos" class="feedback-msg" style="display:none;margin-top:12px;"></p>
-    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Exames</h4>
-    <input type="text" id="cont_ppdAplicado" class="form-input" placeholder="PPD Aplicado" disabled>
-    <input type="text" id="cont_ppdResultado" class="form-input" placeholder="PPD Resultado (mm)" disabled>
-    <input type="date" id="cont_dataRaioX" class="form-input" disabled>
-    <input type="text" id="cont_resultadoRaioX" class="form-input" placeholder="Resultado do Raio-X" disabled>
-    <input type="date" id="cont_data1aBaar" class="form-input" disabled>
-    <input type="text" id="cont_resultado1aBaar" class="form-input" placeholder="Resultado da 1ª BAAR" disabled>
-    <input type="date" id="cont_dataAntiHiv" class="form-input" disabled>
-    <input type="text" id="cont_resultadoHiv" class="form-input" placeholder="Resultado do Teste HIV" disabled>
-    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Conduta</h4>
-    <input type="text" id="cont_iniciadoTb" class="form-input" placeholder="Iniciado Tratamento Tuberculose" disabled>
-    <input type="text" id="cont_iniciadoIltb" class="form-input" placeholder="Iniciado ILTB (Quimioprofilaxia)" disabled>
-    <input type="text" id="cont_realizado" class="form-input" placeholder="Realizado" disabled>
-    <input type="text" id="cont_orientacao" class="form-input" placeholder="Orientação" disabled>
-    <input type="text" id="cont_recusaPaciente" class="form-input" placeholder="Recusa do Paciente" disabled>
-    <input type="date" id="cont_data" class="form-input" disabled>
-    <button id="btnSalvarLivroAmarelo" onclick="salvarLivroAmarelo()" disabled
-      style="width:100%;padding:15px;background:#FFD700;border:none;border-radius:5px;margin-top:20px;font-weight:bold;color:#422006;cursor:pointer;">SALVAR REGISTRO</button>
-  </div>
+
   <div id="modalSucessoContatos" class="modal-overlay-livro-verde" style="display:none;">
     <div class="modal-box-livro-verde">
       <p id="modalSucessoTituloContatos" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>

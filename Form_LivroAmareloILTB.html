@@ -1,38 +1,189 @@
-<div id="telaLivroAmareloILTB" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
-  <div style="margin-bottom: 16px;">
-    <button onclick="voltarAoDashboard()" style="background:none;border:none;color:#154c79;font-size:14px;font-weight:600;cursor:pointer;">← Voltar ao Dashboard</button>
+<div id="telaLivroAmareloILTB" class="tela-livro-amarelo-iltb" style="display:none;">
+
+  <div id="livroAmareloIltbShell" class="livro-amarelo-iltb-shell">
+    <div id="livroAmareloIltbCentro" class="livro-amarelo-iltb-centro">
+      <div class="livro-amarelo-iltb-topo">
+        <button type="button" class="btn-voltar-livro" onclick="voltarAoDashboard()">← Voltar ao Dashboard</button>
+      </div>
+
+      <div id="livroAmareloIltbFormulario" class="livro-amarelo-iltb-formulario">
+        <div class="livro-amarelo-iltb-cabecalho">
+          <h2>Livro Amarelo - ILTB</h2>
+        </div>
+
+        <div class="livro-amarelo-iltb-corpo">
+          <h4 class="secao-titulo-amarelo-iltb">Identificação</h4>
+
+          <label for="iltb_cpf" class="form-label">CPF *</label>
+          <input type="text" id="iltb_cpf" class="form-input" placeholder="Digite o CPF"
+            maxlength="11" inputmode="numeric" autocomplete="off"
+            onblur="buscarCpfLivroAmareloILTB()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAmareloILTB(true);}">
+
+          <input type="text" id="iltb_sinan" class="form-input campo-livro" placeholder="Nº do SINAN" disabled>
+          <input type="text" id="iltb_prontuario" class="form-input campo-livro" placeholder="Nº do Prontuário" disabled>
+          <input type="text" id="iltb_notificacao" class="form-input campo-livro" placeholder="Nº da Notificação" disabled>
+          <input type="text" id="iltb_identificacaoIndice" class="form-input campo-livro" placeholder="Identificação do Paciente Índice" disabled>
+          <input type="text" id="iltb_nomePaciente" class="form-input campo-livro" placeholder="Nome do Paciente" disabled>
+          <input type="number" id="iltb_idade" class="form-input campo-livro" placeholder="Idade" disabled>
+          <select id="iltb_sexo" class="form-input campo-livro" disabled>
+            <option value="">Sexo</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+          </select>
+
+          <p id="msgBuscaIltb" class="feedback-msg" style="display:none;margin-top:12px;"></p>
+
+          <select id="iltb_baciloscopiaTrm" class="form-input campo-livro" disabled>
+            <option value="">Baciloscopia TRM-TB</option>
+            <option value="SR">SR</option>
+            <option value="RR">RR</option>
+            <option value="DT">DT</option>
+            <option value="DI">DI</option>
+            <option value="ND">ND</option>
+            <option value="IE">IE</option>
+            <option value="MTB">MTB</option>
+            <option value="NR">NR</option>
+          </select>
+          <select id="iltb_ppd" class="form-input campo-livro" disabled>
+            <option value="">PPD</option>
+            <option value="Não Reagente">Não Reagente</option>
+            <option value="Reagente Fraco">Reagente Fraco</option>
+            <option value="Reagente Forte">Reagente Forte</option>
+          </select>
+          <select id="iltb_rx" class="form-input campo-livro" disabled>
+            <option value="">Radiografia do Tórax</option>
+            <option value="N">N</option>
+            <option value="Sug">Sug</option>
+            <option value="Seq">Seq</option>
+            <option value="OP">OP</option>
+            <option value="NR">NR</option>
+          </select>
+          <select id="iltb_hiv" class="form-input campo-livro" disabled>
+            <option value="">Teste HIV</option>
+            <option value="Positivo">Positivo</option>
+            <option value="Negativo">Negativo</option>
+          </select>
+          <select id="iltb_esquema" class="form-input campo-livro" disabled>
+            <option value="">Esquema de Tratamento</option>
+            <option value="CN">CN</option>
+            <option value="RIT">RIT</option>
+            <option value="RME">RME</option>
+            <option value="RE">RE</option>
+            <option value="RS">RS</option>
+          </select>
+          <input type="date" id="iltb_dataInicio" class="form-input campo-livro" disabled>
+          <select id="iltb_tdo" class="form-input campo-livro" disabled>
+            <option value="">TDO</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
+          <select id="iltb_tarv" class="form-input campo-livro" disabled>
+            <option value="">TARV</option>
+            <option value="S">S</option>
+            <option value="N">N</option>
+            <option value="IGN">IGN</option>
+            <option value="NA">NA</option>
+          </select>
+
+          <h4 class="secao-titulo-amarelo-iltb">Encerramento</h4>
+          <input type="text" id="iltb_motivoEnc" class="form-input campo-livro" placeholder="Motivo do Encerramento" disabled>
+          <input type="date" id="iltb_dataEnc" class="form-input campo-livro" disabled>
+
+          <button id="btnSalvarLivroAmareloILTB" type="button" onclick="salvarLivroAmareloILTB()" disabled class="btn-salvar-livro-amarelo-iltb">
+            SALVAR REGISTRO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="livroAmareloIltbLegenda" class="livro-amarelo-iltb-legenda" aria-label="Legenda para preenchimento do Livro">
+      <div class="legenda-cabecalho">
+        <h3>Legenda para preenchimento do Livro</h3>
+      </div>
+
+      <div class="legenda-conteudo">
+        <p class="legenda-subtitulo legenda-grupo-titulo">Diagnóstico e Tratamento</p>
+
+        <section class="legenda-secao">
+          <h4>Baciloscopia (TRM-TB)</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">SR</span> para detectável sensível à rifampicina.</li>
+            <li><span class="codigo">RR</span> para detectável resistente à rifampicina.</li>
+            <li><span class="codigo">DT</span> para detectável traços (resistência não avaliada)</li>
+            <li><span class="codigo">DI</span> para detectável indeterminado à rifampicina.</li>
+            <li><span class="codigo">ND</span> para não detectável.</li>
+            <li><span class="codigo">IE</span> para Inválido/erro/sem resultado.</li>
+            <li><span class="codigo">MTB</span>para MTB detectado - Traços.</li>            
+            <li><span class="codigo">NR</span> para não realizado.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>PPD</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-opcoes-texto">
+            <li><span class="codigo">Não Reagente</span>quando o sistema imune não reagiu à substância. Indica que a pessoa não teve contato com a bactéria ou, em casos raros, que a imunidade está muito baixa (falso-negativo).</li>
+            <li><span class="codigo">Reagente Fraco</span>quando houve contato prévio com a bactéria da tuberculose, com micobactérias ambientais, ou é uma resposta à vacina BCG. É considerado positivo em grupos de risco (como pessoas com HIV ou que convivem com alguém doente).</li>
+            <li><span class="codigo">Reagente Forte</span>quando há uma forte probabilidade de infecção latente pela bactéria da tuberculose.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Radiografia do tórax</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">N</span> para aspecto normal.</li>
+            <li><span class="codigo">Sug</span> para imagem sugestiva de TB.</li>
+            <li><span class="codigo">Seq</span> para sequela, quando houver imagem sugestiva de lesão cicatricial.</li>
+            <li><span class="codigo">OP</span> para imagem sugestiva de outra patologia não tuberculosa.</li>
+            <li><span class="codigo">NR</span> para não realizada.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Teste HIV</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-opcoes-texto">
+            <li><span class="codigo">Positivo</span>para teste rápido positivo.</li>
+            <li><span class="codigo">Negativo</span>para teste rápido negativo.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Esquema de Tratamento</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">CN</span> para caso novo.</li>
+            <li><span class="codigo">RIT</span> para reingresso após interrupção do tratamento (abandono).</li>
+            <li><span class="codigo">RME</span> para reentrada após mudança de esquema.</li>
+            <li><span class="codigo">RE</span> para reexposição.</li>
+            <li><span class="codigo">RS</span> para reentrada após suspensão por condição clínica desfavorável ao tratamento.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>TDO</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-opcoes-texto">
+            <li><span class="codigo">Em aberto...</span></li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>TARV</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">S</span> para sim.</li>
+            <li><span class="codigo">N</span> para não.</li>
+            <li><span class="codigo">IGN</span> para ignorado.</li>
+            <li><span class="codigo">NA</span> para pessoa com coinfecção TB-HIV.</li>
+          </ul>
+        </section>
+      </div>
+    </aside>
   </div>
-  <div style="background-color:#FFFF00;padding:15px;border-radius:10px 10px 0 0;text-align:center;">
-    <h2 style="color:#422006;">Livro Amarelo - ILTB</h2>
-  </div>
-  <div style="background:white;padding:20px;border-radius:0 0 10px 10px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-    <h4 style="margin-bottom:10px;color:#CA8A04;">Identificação</h4>
-    <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">CPF *</label>
-    <input type="text" id="iltb_cpf" class="form-input" placeholder="Digite o CPF"
-      onblur="buscarCpfLivroAmareloILTB()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAmareloILTB(true);}">
-    <input type="text" id="iltb_sinan" class="form-input campo-livro" placeholder="Nº do SINAN" disabled>
-    <input type="text" id="iltb_prontuario" class="form-input campo-livro" placeholder="Nº do Prontuário" disabled>
-    <input type="text" id="iltb_notificacao" class="form-input campo-livro" placeholder="Nº da Notificação" disabled>
-    <input type="text" id="iltb_identificacaoIndice" class="form-input campo-livro" placeholder="Identificação do Paciente Índice" disabled>
-    <input type="text" id="iltb_nomePaciente" class="form-input campo-livro" placeholder="Nome do Paciente" disabled>
-    <input type="number" id="iltb_idade" class="form-input campo-livro" placeholder="Idade" disabled>
-    <select id="iltb_sexo" class="form-input campo-livro" disabled><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
-    <p id="msgBuscaIltb" class="feedback-msg" style="display:none;margin-top:12px;"></p>
-    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Diagnóstico e Tratamento</h4>
-    <input type="text" id="iltb_baciloscopiaTrm" class="form-input campo-livro" placeholder="Baciloscopia TRM-TB" disabled>
-    <input type="text" id="iltb_ppd" class="form-input campo-livro" placeholder="PPD" disabled>
-    <input type="text" id="iltb_rx" class="form-input campo-livro" placeholder="Radiografia do Tórax" disabled>
-    <input type="text" id="iltb_hiv" class="form-input campo-livro" placeholder="Teste HIV" disabled>
-    <input type="text" id="iltb_esquema" class="form-input campo-livro" placeholder="Esquema de Tratamento" disabled>
-    <input type="date" id="iltb_dataInicio" class="form-input campo-livro" disabled>
-    <input type="text" id="iltb_tdo" class="form-input campo-livro" placeholder="TDO" disabled>
-    <input type="text" id="iltb_tarv" class="form-input campo-livro" placeholder="TARV" disabled>
-    <h4 style="margin-top:20px;margin-bottom:10px;color:#CA8A04;">Encerramento</h4>
-    <input type="text" id="iltb_motivoEnc" class="form-input campo-livro" placeholder="Motivo do Encerramento" disabled>
-    <input type="date" id="iltb_dataEnc" class="form-input campo-livro" disabled>
-    <button id="btnSalvarLivroAmareloILTB" onclick="salvarLivroAmareloILTB()" disabled
-      style="width:100%;padding:15px;background:#FFFF00;border:none;border-radius:5px;margin-top:20px;font-weight:bold;color:#422006;cursor:pointer;">SALVAR REGISTRO</button>
-  </div>
+
   <div id="modalSucessoIltb" class="modal-overlay-livro-verde" style="display:none;">
     <div class="modal-box-livro-verde">
       <p id="modalSucessoTituloIltb" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>

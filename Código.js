@@ -13,7 +13,7 @@ const CONFIG_LIVROS = {
     campoSempreEditavel: 'obs',
     campos: [
       'cpf', 'sinan', 'prontuario', 'nomePaciente', 'idade', 'sexo',
-      'bac1', 'bac2', 'trm', 'cultura', 'culturaTS', 'rx', 'hiv',
+      'bac1', 'trm', 'cultura', 'culturaTS', 'rx', 'hiv',
       'formaClinica', 'tipoEntrada', 'esquema', 'dataInicio', 'tdo', 'tarv'
     ],
     meses: 12,
@@ -47,8 +47,7 @@ const CONFIG_LIVROS = {
     campos: [
       'cpf', 'sinanIndice', 'prontuario', 'nomeContato', 'idade', 'sexo', 'grauParentesco',
       'ppdAplicado', 'ppdResultado', 'dataRaioX', 'resultadoRaioX', 'data1aBaar', 'resultado1aBaar',
-      'dataAntiHiv', 'resultadoHiv', 'iniciadoTb', 'iniciadoIltb', 'realizado', 'orientacao',
-      'recusaPaciente', 'data'
+      'dataAntiHiv', 'resultadoHiv', 'destino', 'data'
     ],
     meses: 0,
     encerramento: []

@@ -1,34 +1,101 @@
-<div id="telaLivroAzul" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
-  <div style="margin-bottom: 16px;">
-    <button onclick="voltarAoDashboard()" style="background:none;border:none;color:#154c79;font-size:14px;font-weight:600;cursor:pointer;">← Voltar ao Dashboard</button>
+<div id="telaLivroAzul" class="tela-livro-azul" style="display:none;">
+
+  <div id="livroAzulShell" class="livro-azul-shell">
+    <div id="livroAzulCentro" class="livro-azul-centro">
+      <div class="livro-azul-topo">
+        <button type="button" class="btn-voltar-livro" onclick="voltarAoDashboard()">← Voltar ao Dashboard</button>
+      </div>
+
+      <div id="livroAzulFormulario" class="livro-azul-formulario">
+        <div class="livro-azul-cabecalho">
+          <h2>Livro Azul - Sintomático Respiratório</h2>
+        </div>
+
+        <div class="livro-azul-corpo">
+          <h4 class="secao-titulo-azul">Identificação</h4>
+
+          <label for="azul_cpf" class="form-label">CPF *</label>
+          <input type="text" id="azul_cpf" class="form-input" placeholder="Digite o CPF"
+            maxlength="11" inputmode="numeric" autocomplete="off"
+            onblur="buscarCpfLivroAzul()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAzul(true);}">
+
+          <input type="text" id="azul_sinan" class="form-input" placeholder="Nº do SINAN" disabled>
+          <input type="text" id="azul_sequencial" class="form-input" placeholder="Nº Sequencial" disabled>
+          <input type="text" id="azul_entregaAmostra" class="form-input" placeholder="Entrega da Amostra" disabled>
+          <input type="text" id="azul_nomeCompleto" class="form-input" placeholder="Nome Completo" disabled>
+          <input type="number" id="azul_idade" class="form-input" placeholder="Idade" disabled>
+          <select id="azul_sexo" class="form-input" disabled>
+            <option value="">Sexo</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+          </select>
+          <input type="text" id="azul_endereco" class="form-input" placeholder="Endereço Completo" disabled>
+
+          <p id="msgBuscaAzul" class="feedback-msg" style="display:none;margin-top:12px;"></p>
+
+          <h4 class="secao-titulo-azul">Amostras e Exames</h4>
+          <input type="date" id="azul_data1aAmostra" class="form-input" disabled>
+          <select id="azul_resultado1aBaar" class="form-input" disabled>
+            <option value="">Resultado da 1ª Amostra BAAR</option>
+            <option value="Detectável">Detectável</option>
+            <option value="Não detectável">Não detectável</option>
+          </select>
+          <input type="date" id="azul_data2aAmostra" class="form-input" disabled>
+          <select id="azul_resultado2aBaar" class="form-input" disabled>
+            <option value="">Resultado da 2ª Amostra BAAR</option>
+            <option value="Detectável">Detectável</option>
+            <option value="Não detectável">Não detectável</option>
+            <option value="Não realizado">Não realizado</option>
+          </select>
+          <input type="date" id="azul_dataTrm" class="form-input" disabled>
+          <select id="azul_resultadoTrm" class="form-input" disabled>
+            <option value="">Resultado do Teste Rápido Molecular (TRM-TB)</option>
+            <option value="SR">SR</option>
+            <option value="RR">RR</option>
+            <option value="ND">ND</option>
+            <option value="DI">DI</option>
+            <option value="MTB">MTB</option>
+            <option value="N/Re">N/Re</option>
+          </select>
+          <input type="text" id="azul_numeroGal" class="form-input" placeholder="Nº do GAL" disabled>
+
+          <button id="btnSalvarLivroAzul" type="button" onclick="salvarLivroAzul()" disabled class="btn-salvar-livro-azul">
+            SALVAR REGISTRO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="livroAzulLegenda" class="livro-azul-legenda" aria-label="Legenda para preenchimento do Livro">
+      <div class="legenda-cabecalho">
+        <h3>Legenda para preenchimento do Livro</h3>
+      </div>
+
+      <div class="legenda-conteudo">
+        <section class="legenda-secao">
+          <h4>1ª e 2ª Amostra de BAAR</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">Detectável</span>para as amostras positivas.</li>
+            <li><span class="codigo">Não Detectável</span>para as amostras negativas.</li>
+          </ul>
+        </section>
+        <section class="legenda-secao">
+          <h4>Teste Rápido Molecular para Tuberculose (TRM-TB)</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">SR</span> para detectável sensível à rifampicina.</li>
+            <li><span class="codigo">RR</span> para detectável resistente à rifampicina.</li>
+            <li><span class="codigo">ND</span> para não detectável.</li>
+            <li><span class="codigo">DI</span> para detectável indeterminado (inconclusivo).</li>
+            <li><span class="codigo">MTB</span>para MTB detectado - Traços.</li>            
+            <li><span class="codigo">N/Re</span> para não realizado.</li>
+          </ul>
+        </section>
+      </div>
+    </aside>
   </div>
-  <div style="background-color:#2E8B57;padding:15px;border-radius:10px 10px 0 0;text-align:center;">
-    <h2 style="color:#FFFFFF;">Livro Azul - Sintomático Respiratório</h2>
-  </div>
-  <div style="background:white;padding:20px;border-radius:0 0 10px 10px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-    <h4 style="margin-bottom:10px;color:#2E8B57;">Identificação</h4>
-    <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">CPF *</label>
-    <input type="text" id="azul_cpf" class="form-input" placeholder="Digite o CPF"
-      onblur="buscarCpfLivroAzul()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCpfLivroAzul(true);}">
-    <input type="text" id="azul_sinan" class="form-input" placeholder="Nº do SINAN" disabled>
-    <input type="text" id="azul_sequencial" class="form-input" placeholder="Nº Sequencial" disabled>
-    <input type="text" id="azul_entregaAmostra" class="form-input" placeholder="Entrega da Amostra" disabled>
-    <input type="text" id="azul_nomeCompleto" class="form-input" placeholder="Nome Completo" disabled>
-    <input type="number" id="azul_idade" class="form-input" placeholder="Idade" disabled>
-    <select id="azul_sexo" class="form-input" disabled><option value="">Sexo</option><option value="M">Masculino</option><option value="F">Feminino</option></select>
-    <input type="text" id="azul_endereco" class="form-input" placeholder="Endereço Completo" disabled>
-    <p id="msgBuscaAzul" class="feedback-msg" style="display:none;margin-top:12px;"></p>
-    <h4 style="margin-top:20px;margin-bottom:10px;color:#2E8B57;">Amostras e Exames</h4>
-    <input type="date" id="azul_data1aAmostra" class="form-input" disabled>
-    <input type="text" id="azul_resultado1aBaar" class="form-input" placeholder="Resultado da 1ª Amostra BAAR" disabled>
-    <input type="date" id="azul_data2aAmostra" class="form-input" disabled>
-    <input type="text" id="azul_resultado2aBaar" class="form-input" placeholder="Resultado da 2ª Amostra BAAR" disabled>
-    <input type="date" id="azul_dataTrm" class="form-input" disabled>
-    <input type="text" id="azul_resultadoTrm" class="form-input" placeholder="Resultado do Teste Rápido Molecular (TRM-TB)" disabled>
-    <input type="text" id="azul_numeroGal" class="form-input" placeholder="Nº do GAL" disabled>
-    <button id="btnSalvarLivroAzul" onclick="salvarLivroAzul()" disabled
-      style="width:100%;padding:15px;background:#2E8B57;border:none;border-radius:5px;margin-top:20px;font-weight:bold;color:#FFFFFF;cursor:pointer;">SALVAR REGISTRO</button>
-  </div>
+
   <div id="modalSucessoAzul" class="modal-overlay-livro-verde" style="display:none;">
     <div class="modal-box-livro-verde">
       <p id="modalSucessoTituloAzul" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>

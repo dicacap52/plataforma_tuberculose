@@ -1,11 +1,201 @@
 <script>
+  const CODIGOS_PULMONAR = ['P+', 'P-', 'P'];
+  const CODIGOS_EXTRAPULMONAR = ['PL', 'Oa', 'Gu', 'Mi', 'Gp', 'Oc', 'Me', 'O'];
+  const LAYOUT_LEGENDA_VERDE = {
+    resizeRegistrado: false,
+    observer: null
+  };
+
+  function obterConfigLayoutLegenda() {
+    const tela = document.getElementById('telaLivroVerde');
+    const estilos = tela ? getComputedStyle(tela) : null;
+    return {
+      larguraForm: estilos ? parseInt(estilos.getPropertyValue('--livro-verde-largura'), 10) || 500 : 500,
+      larguraLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-maxima'), 10) || 400 : 400,
+      larguraLegendaMin: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-minima'), 10) || 300 : 300,
+      viewportLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-viewport-largura'), 10) || 1080 : 1080,
+      gap: estilos ? parseInt(estilos.getPropertyValue('--legenda-gap'), 10) || 24 : 24,
+      margemLateral: 16
+    };
+  }
+
+  function limparEstilosLayoutLegenda(shell, painel) {
+    painel.style.width = '';
+    painel.style.flexBasis = '';
+    painel.style.right = '';
+    painel.style.left = '';
+  }
+
+  function empilharLegendaVerde(shell, painel) {
+    shell.classList.remove('livro-verde-shell--lateral');
+    shell.classList.add('livro-verde-shell--empilhado');
+    painel.classList.remove('livro-verde-legenda--lateral');
+    painel.classList.add('livro-verde-legenda--empilhada');
+    limparEstilosLayoutLegenda(shell, painel);
+  }
+
+  function calcularLarguraLegenda(cfg, viewport, bordaDireitaForm) {
+    const espacoDisponivel = viewport - bordaDireitaForm - cfg.gap;
+
+    if (espacoDisponivel < cfg.larguraLegendaMin) return null;
+
+    return Math.min(cfg.larguraLegendaMax, Math.floor(espacoDisponivel));
+  }
+
+  function ajustarLayoutLegendaVerde() {
+    const tela = document.getElementById('telaLivroVerde');
+    const shell = document.getElementById('livroVerdeShell');
+    const centro = document.getElementById('livroVerdeCentro');
+    const painel = document.getElementById('livroVerdeLegenda');
+    if (!tela || !shell || !centro || !painel || tela.style.display === 'none') return;
+
+    const cfg = obterConfigLayoutLegenda();
+    const viewport = document.documentElement.clientWidth;
+
+    limparEstilosLayoutLegenda(shell, painel);
+    shell.classList.add('livro-verde-shell--lateral');
+    shell.classList.remove('livro-verde-shell--empilhado');
+    painel.classList.add('livro-verde-legenda--lateral');
+    painel.classList.remove('livro-verde-legenda--empilhada');
+
+    const bordaDireitaForm = centro.getBoundingClientRect().right;
+    const larguraLegenda = calcularLarguraLegenda(cfg, viewport, bordaDireitaForm);
+
+    if (larguraLegenda === null) {
+      empilharLegendaVerde(shell, painel);
+      return;
+    }
+
+    painel.style.width = larguraLegenda + 'px';
+    painel.style.right = '0';
+    painel.style.left = 'auto';
+
+    const inicioLegenda = painel.getBoundingClientRect().left;
+    if (inicioLegenda < bordaDireitaForm + cfg.gap - 0.5) {
+      empilharLegendaVerde(shell, painel);
+    }
+  }
+
+  function iniciarObservadorLayoutLegendaVerde() {
+    if (LAYOUT_LEGENDA_VERDE.resizeRegistrado) return;
+    LAYOUT_LEGENDA_VERDE.resizeRegistrado = true;
+    window.addEventListener('resize', ajustarLayoutLegendaVerde);
+
+    const centro = document.getElementById('livroVerdeCentro');
+    if (centro && window.ResizeObserver) {
+      LAYOUT_LEGENDA_VERDE.observer = new ResizeObserver(ajustarLayoutLegendaVerde);
+      LAYOUT_LEGENDA_VERDE.observer.observe(centro);
+    }
+  }
+
+  function agendarAjusteLayoutLegendaVerde() {
+    requestAnimationFrame(function() {
+      ajustarLayoutLegendaVerde();
+      requestAnimationFrame(ajustarLayoutLegendaVerde);
+    });
+  }
+
+  function parseFormaClinicaValor(valor) {
+    const v = String(valor || '').trim();
+    if (!v) return { tipo: '', pulmonar: '', extrapulmonar: '' };
+
+    if (v.indexOf('|') !== -1) {
+      const partes = v.split('|');
+      return {
+        tipo: 'ambos',
+        pulmonar: (partes[0] || '').trim(),
+        extrapulmonar: (partes[1] || '').trim()
+      };
+    }
+
+    if (CODIGOS_PULMONAR.indexOf(v) !== -1) {
+      return { tipo: 'pulmonar', pulmonar: v, extrapulmonar: '' };
+    }
+
+    if (CODIGOS_EXTRAPULMONAR.indexOf(v) !== -1) {
+      return { tipo: 'extrapulmonar', pulmonar: '', extrapulmonar: v };
+    }
+
+    return { tipo: '', pulmonar: '', extrapulmonar: '' };
+  }
+
+  function atualizarCamposFormaClinica() {
+    const tipo = document.getElementById('formaClinicaTipo');
+    const divPulmonar = document.getElementById('formaClinicaCampoPulmonar');
+    const divExtra = document.getElementById('formaClinicaCampoExtrapulmonar');
+    const selPulmonar = document.getElementById('formaClinicaPulmonar');
+    const selExtra = document.getElementById('formaClinicaExtrapulmonar');
+    if (!tipo || !divPulmonar || !divExtra || !selPulmonar || !selExtra) return;
+
+    const valorTipo = tipo.value;
+    const mostrarPulmonar = valorTipo === 'pulmonar' || valorTipo === 'ambos';
+    const mostrarExtra = valorTipo === 'extrapulmonar' || valorTipo === 'ambos';
+
+    divPulmonar.style.display = mostrarPulmonar ? 'block' : 'none';
+    divExtra.style.display = mostrarExtra ? 'block' : 'none';
+
+    if (!mostrarPulmonar) selPulmonar.value = '';
+    if (!mostrarExtra) selExtra.value = '';
+  }
+
+  function definirSelectFormaClinica(id, valor, bloqueado) {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+    campo.value = valor != null ? valor : '';
+    campo.disabled = bloqueado;
+    campo.classList.toggle('campo-bloqueado', bloqueado);
+  }
+
+  function aplicarFormaClinicaVerde(dados, preenchidos, modo) {
+    const parsed = parseFormaClinicaValor(dados.formaClinica);
+    const bloqueado = modo === 'visualizar' || (modo === 'existente' && !!preenchidos.formaClinica);
+
+    definirSelectFormaClinica('formaClinicaTipo', parsed.tipo, bloqueado);
+    atualizarCamposFormaClinica();
+    definirSelectFormaClinica('formaClinicaPulmonar', parsed.pulmonar, bloqueado);
+    definirSelectFormaClinica('formaClinicaExtrapulmonar', parsed.extrapulmonar, bloqueado);
+  }
+
+  function bloquearFormaClinicaVerde() {
+    definirSelectFormaClinica('formaClinicaTipo', '', true);
+    definirSelectFormaClinica('formaClinicaPulmonar', '', true);
+    definirSelectFormaClinica('formaClinicaExtrapulmonar', '', true);
+    atualizarCamposFormaClinica();
+  }
+
+  function coletarFormaClinicaVerde(dados) {
+    const tipo = document.getElementById('formaClinicaTipo').value;
+    const pulmonar = document.getElementById('formaClinicaPulmonar').value;
+    const extrapulmonar = document.getElementById('formaClinicaExtrapulmonar').value;
+
+    if (tipo === 'pulmonar') dados.formaClinica = pulmonar;
+    else if (tipo === 'extrapulmonar') dados.formaClinica = extrapulmonar;
+    else if (tipo === 'ambos') {
+      dados.formaClinica = pulmonar && extrapulmonar ? pulmonar + '|' + extrapulmonar : '';
+    } else {
+      dados.formaClinica = '';
+    }
+  }
+
+  const OPCOES_RESULTADO_MES = ['+', '++', '+++', 'NEG', 'N/Re'];
+
+  function criarSelectMesVerde(numero) {
+    let opcoes = '<option value="">Mês ' + numero + '</option>';
+    OPCOES_RESULTADO_MES.forEach(function(valor) {
+      opcoes += '<option value="' + valor + '">' + valor + '</option>';
+    });
+    return '<select id="mes' + numero + '" class="form-input campo-livro-verde" disabled>' + opcoes + '</select>';
+  }
+
   function inicializarMesesVerde() {
     const container = document.getElementById('containerMeses');
     container.innerHTML = '';
     for (let i = 1; i <= 12; i++) {
-      container.innerHTML += '<input type="text" id="mes' + i + '" placeholder="Mês ' + i + '" class="form-input campo-livro-verde" disabled>';
+      container.innerHTML += criarSelectMesVerde(i);
     }
     gerenciadoresLivros['Livro Verde - Tratamento'].init();
+    iniciarObservadorLayoutLegendaVerde();
+    agendarAjusteLayoutLegendaVerde();
   }
 
   function aplicarMesesVerde(dados, preenchidos, modo) {
@@ -19,6 +209,7 @@
       campo.readOnly = false;
       campo.classList.toggle('campo-bloqueado', bloqueado);
     }
+    aplicarFormaClinicaVerde(dados, preenchidos, modo);
   }
 
   function bloquearMesesVerde() {
@@ -29,6 +220,7 @@
       campo.disabled = true;
       campo.classList.remove('campo-bloqueado');
     }
+    bloquearFormaClinicaVerde();
   }
 
   registrarLivro({
@@ -54,13 +246,11 @@
       { id: 'idade', key: 'idade' },
       { id: 'sexo', key: 'sexo' },
       { id: 'bac1', key: 'bac1' },
-      { id: 'bac2', key: 'bac2' },
       { id: 'trm', key: 'trm' },
       { id: 'cultura', key: 'cultura' },
       { id: 'culturaTS', key: 'culturaTS' },
       { id: 'rx', key: 'rx' },
       { id: 'hiv', key: 'hiv' },
-      { id: 'formaClinica', key: 'formaClinica' },
       { id: 'tipoEntrada', key: 'tipoEntrada' },
       { id: 'esquema', key: 'esquema' },
       { id: 'dataInicio', key: 'dataInicio' },
@@ -80,6 +270,7 @@
         const campo = document.getElementById('mes' + i);
         dados.meses.push(campo ? campo.value : '');
       }
+      coletarFormaClinicaVerde(dados);
     }
   });
 

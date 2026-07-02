@@ -1,4 +1,98 @@
 <script>
+  const LAYOUT_LEGENDA_AMARELO_ILTB = {
+    resizeRegistrado: false,
+    observer: null
+  };
+
+  function obterConfigLayoutLegendaAmareloIltb() {
+    const tela = document.getElementById('telaLivroAmareloILTB');
+    const estilos = tela ? getComputedStyle(tela) : null;
+    return {
+      larguraForm: estilos ? parseInt(estilos.getPropertyValue('--livro-amarelo-iltb-largura'), 10) || 500 : 500,
+      larguraLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-maxima'), 10) || 450 : 450,
+      larguraLegendaMin: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-minima'), 10) || 300 : 300,
+      viewportLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-viewport-largura'), 10) || 1080 : 1080,
+      gap: estilos ? parseInt(estilos.getPropertyValue('--legenda-gap'), 10) || 24 : 24,
+      margemLateral: 16
+    };
+  }
+
+  function limparEstilosLayoutLegendaAmareloIltb(shell, painel) {
+    painel.style.width = '';
+    painel.style.flexBasis = '';
+    painel.style.right = '';
+    painel.style.left = '';
+  }
+
+  function empilharLegendaAmareloIltb(shell, painel) {
+    shell.classList.remove('livro-amarelo-iltb-shell--lateral');
+    shell.classList.add('livro-amarelo-iltb-shell--empilhado');
+    painel.classList.remove('livro-amarelo-iltb-legenda--lateral');
+    painel.classList.add('livro-amarelo-iltb-legenda--empilhada');
+    limparEstilosLayoutLegendaAmareloIltb(shell, painel);
+  }
+
+  function calcularLarguraLegendaAmareloIltb(cfg, viewport, bordaDireitaForm) {
+    const espacoDisponivel = viewport - bordaDireitaForm - cfg.gap;
+    if (espacoDisponivel < cfg.larguraLegendaMin) return null;
+    return Math.min(cfg.larguraLegendaMax, Math.floor(espacoDisponivel));
+  }
+
+  function ajustarLayoutLegendaAmareloIltb() {
+    const tela = document.getElementById('telaLivroAmareloILTB');
+    const shell = document.getElementById('livroAmareloIltbShell');
+    const centro = document.getElementById('livroAmareloIltbCentro');
+    const painel = document.getElementById('livroAmareloIltbLegenda');
+    if (!tela || !shell || !centro || !painel || tela.style.display === 'none') return;
+
+    const cfg = obterConfigLayoutLegendaAmareloIltb();
+    const viewport = document.documentElement.clientWidth;
+
+    limparEstilosLayoutLegendaAmareloIltb(shell, painel);
+    shell.classList.add('livro-amarelo-iltb-shell--lateral');
+    shell.classList.remove('livro-amarelo-iltb-shell--empilhado');
+    painel.classList.add('livro-amarelo-iltb-legenda--lateral');
+    painel.classList.remove('livro-amarelo-iltb-legenda--empilhada');
+
+    const bordaDireitaForm = centro.getBoundingClientRect().right;
+    const larguraLegenda = calcularLarguraLegendaAmareloIltb(cfg, viewport, bordaDireitaForm);
+
+    if (larguraLegenda === null) {
+      empilharLegendaAmareloIltb(shell, painel);
+      return;
+    }
+
+    painel.style.width = larguraLegenda + 'px';
+    painel.style.right = '0';
+    painel.style.left = 'auto';
+
+    const inicioLegenda = painel.getBoundingClientRect().left;
+    if (inicioLegenda < bordaDireitaForm + cfg.gap - 0.5) {
+      empilharLegendaAmareloIltb(shell, painel);
+    }
+  }
+
+  function iniciarObservadorLayoutLegendaAmareloIltb() {
+    if (LAYOUT_LEGENDA_AMARELO_ILTB.resizeRegistrado) return;
+    LAYOUT_LEGENDA_AMARELO_ILTB.resizeRegistrado = true;
+    window.addEventListener('resize', ajustarLayoutLegendaAmareloIltb);
+
+    const centro = document.getElementById('livroAmareloIltbCentro');
+    if (centro && window.ResizeObserver) {
+      LAYOUT_LEGENDA_AMARELO_ILTB.observer = new ResizeObserver(ajustarLayoutLegendaAmareloIltb);
+      LAYOUT_LEGENDA_AMARELO_ILTB.observer.observe(centro);
+    }
+  }
+
+  function agendarAjusteLayoutLegendaAmareloIltb() {
+    requestAnimationFrame(function() {
+      ajustarLayoutLegendaAmareloIltb();
+      requestAnimationFrame(ajustarLayoutLegendaAmareloIltb);
+    });
+  }
+
+  iniciarObservadorLayoutLegendaAmareloIltb();
+
   registrarLivro({
     aba: 'Livro Amarelo - ILTB',
     idCpf: 'iltb_cpf',

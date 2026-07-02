@@ -1,4 +1,150 @@
 <script>
+  const LAYOUT_LEGENDA_AMARELO_CONT = {
+    resizeRegistrado: false,
+    observer: null
+  };
+
+  function obterConfigLayoutLegendaAmareloCont() {
+    const tela = document.getElementById('telaLivroAmarelo');
+    const estilos = tela ? getComputedStyle(tela) : null;
+    return {
+      larguraForm: estilos ? parseInt(estilos.getPropertyValue('--livro-amarelo-cont-largura'), 10) || 500 : 500,
+      larguraLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-maxima'), 10) || 450 : 450,
+      larguraLegendaMin: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-minima'), 10) || 300 : 300,
+      viewportLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-viewport-largura'), 10) || 1080 : 1080,
+      gap: estilos ? parseInt(estilos.getPropertyValue('--legenda-gap'), 10) || 24 : 24,
+      margemLateral: 16
+    };
+  }
+
+  function limparEstilosLayoutLegendaAmareloCont(shell, painel) {
+    painel.style.width = '';
+    painel.style.flexBasis = '';
+    painel.style.right = '';
+    painel.style.left = '';
+  }
+
+  function empilharLegendaAmareloCont(shell, painel) {
+    shell.classList.remove('livro-amarelo-cont-shell--lateral');
+    shell.classList.add('livro-amarelo-cont-shell--empilhado');
+    painel.classList.remove('livro-amarelo-cont-legenda--lateral');
+    painel.classList.add('livro-amarelo-cont-legenda--empilhada');
+    limparEstilosLayoutLegendaAmareloCont(shell, painel);
+  }
+
+  function calcularLarguraLegendaAmareloCont(cfg, viewport, bordaDireitaForm) {
+    const espacoDisponivel = viewport - bordaDireitaForm - cfg.gap;
+    if (espacoDisponivel < cfg.larguraLegendaMin) return null;
+    return Math.min(cfg.larguraLegendaMax, Math.floor(espacoDisponivel));
+  }
+
+  function ajustarLayoutLegendaAmareloCont() {
+    const tela = document.getElementById('telaLivroAmarelo');
+    const shell = document.getElementById('livroAmareloContShell');
+    const centro = document.getElementById('livroAmareloContCentro');
+    const painel = document.getElementById('livroAmareloContLegenda');
+    if (!tela || !shell || !centro || !painel || tela.style.display === 'none') return;
+
+    const cfg = obterConfigLayoutLegendaAmareloCont();
+    const viewport = document.documentElement.clientWidth;
+
+    limparEstilosLayoutLegendaAmareloCont(shell, painel);
+    shell.classList.add('livro-amarelo-cont-shell--lateral');
+    shell.classList.remove('livro-amarelo-cont-shell--empilhado');
+    painel.classList.add('livro-amarelo-cont-legenda--lateral');
+    painel.classList.remove('livro-amarelo-cont-legenda--empilhada');
+
+    const bordaDireitaForm = centro.getBoundingClientRect().right;
+    const larguraLegenda = calcularLarguraLegendaAmareloCont(cfg, viewport, bordaDireitaForm);
+
+    if (larguraLegenda === null) {
+      empilharLegendaAmareloCont(shell, painel);
+      return;
+    }
+
+    painel.style.width = larguraLegenda + 'px';
+    painel.style.right = '0';
+    painel.style.left = 'auto';
+
+    const inicioLegenda = painel.getBoundingClientRect().left;
+    if (inicioLegenda < bordaDireitaForm + cfg.gap - 0.5) {
+      empilharLegendaAmareloCont(shell, painel);
+    }
+  }
+
+  function iniciarObservadorLayoutLegendaAmareloCont() {
+    if (LAYOUT_LEGENDA_AMARELO_CONT.resizeRegistrado) return;
+    LAYOUT_LEGENDA_AMARELO_CONT.resizeRegistrado = true;
+    window.addEventListener('resize', ajustarLayoutLegendaAmareloCont);
+
+    const centro = document.getElementById('livroAmareloContCentro');
+    if (centro && window.ResizeObserver) {
+      LAYOUT_LEGENDA_AMARELO_CONT.observer = new ResizeObserver(ajustarLayoutLegendaAmareloCont);
+      LAYOUT_LEGENDA_AMARELO_CONT.observer.observe(centro);
+    }
+  }
+
+  function agendarAjusteLayoutLegendaAmareloCont() {
+    requestAnimationFrame(function() {
+      ajustarLayoutLegendaAmareloCont();
+      requestAnimationFrame(ajustarLayoutLegendaAmareloCont);
+    });
+  }
+
+  iniciarObservadorLayoutLegendaAmareloCont();
+
+  function atualizarCampoPpdContatos() {
+    const aplicado = document.getElementById('cont_ppdAplicado');
+    const wrapper = document.getElementById('cont_ppdResultadoWrapper');
+    const resultado = document.getElementById('cont_ppdResultado');
+    const msg = document.getElementById('msgPpdResultadoContatos');
+    if (!aplicado || !wrapper || !resultado) return;
+
+    const exibirResultado = aplicado.value === 'Sim';
+    wrapper.style.display = exibirResultado ? 'block' : 'none';
+
+    if (!exibirResultado) {
+      if (!resultado.disabled) resultado.value = '';
+      if (msg) msg.style.display = 'none';
+      return;
+    }
+
+    validarAlertaPpdResultadoContatos();
+  }
+
+  function sanitizarPpdResultadoContatos() {
+    const campo = document.getElementById('cont_ppdResultado');
+    if (!campo || campo.disabled) return;
+
+    const valorAnterior = campo.value;
+    const tinhaInvalido = /[^\d.,]/.test(valorAnterior);
+    let limpo = valorAnterior.replace(/[^\d.,]/g, '');
+    const indiceSeparador = limpo.search(/[.,]/);
+    if (indiceSeparador >= 0) {
+      const inteiro = limpo.slice(0, indiceSeparador).replace(/[.,]/g, '');
+      const decimal = limpo.slice(indiceSeparador + 1).replace(/[.,]/g, '');
+      limpo = inteiro + (decimal.length ? '.' + decimal : (valorAnterior.endsWith(',') || valorAnterior.endsWith('.') ? '.' : ''));
+    }
+
+    if (valorAnterior !== limpo) campo.value = limpo;
+    validarAlertaPpdResultadoContatos();
+  }
+
+  function validarAlertaPpdResultadoContatos() {
+    const campo = document.getElementById('cont_ppdResultado');
+    const msg = document.getElementById('msgPpdResultadoContatos');
+    if (!campo || !msg) return;
+
+    const texto = String(campo.value).trim().replace(',', '.');
+    if (!texto) {
+      msg.style.display = 'none';
+      return;
+    }
+
+    const valor = parseFloat(texto);
+    msg.style.display = (!isNaN(valor) && valor >= 5) ? 'block' : 'none';
+  }
+
   registrarLivro({
     aba: 'Livro Amarelo - Contatos',
     idCpf: 'cont_cpf',
@@ -12,6 +158,13 @@
     idModalCancelar: 'btnModalCancelarContatos',
     idModalVisualizar: 'btnModalVisualizarContatos',
     idPrimeiroCampo: 'cont_sinanIndice',
+    onAplicarCampos: function() { atualizarCampoPpdContatos(); },
+    onBloquearCampos: function() {
+      const wrapper = document.getElementById('cont_ppdResultadoWrapper');
+      const msg = document.getElementById('msgPpdResultadoContatos');
+      if (wrapper) wrapper.style.display = 'none';
+      if (msg) msg.style.display = 'none';
+    },
     campos: [
       { id: 'cont_cpf', key: 'cpf' },
       { id: 'cont_sinanIndice', key: 'sinanIndice' },
@@ -28,11 +181,7 @@
       { id: 'cont_resultado1aBaar', key: 'resultado1aBaar' },
       { id: 'cont_dataAntiHiv', key: 'dataAntiHiv' },
       { id: 'cont_resultadoHiv', key: 'resultadoHiv' },
-      { id: 'cont_iniciadoTb', key: 'iniciadoTb' },
-      { id: 'cont_iniciadoIltb', key: 'iniciadoIltb' },
-      { id: 'cont_realizado', key: 'realizado' },
-      { id: 'cont_orientacao', key: 'orientacao' },
-      { id: 'cont_recusaPaciente', key: 'recusaPaciente' },
+      { id: 'cont_destino', key: 'destino' },
       { id: 'cont_data', key: 'data' }
     ]
   });

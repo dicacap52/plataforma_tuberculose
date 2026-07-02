@@ -1,4 +1,98 @@
 <script>
+  const LAYOUT_LEGENDA_AZUL = {
+    resizeRegistrado: false,
+    observer: null
+  };
+
+  function obterConfigLayoutLegendaAzul() {
+    const tela = document.getElementById('telaLivroAzul');
+    const estilos = tela ? getComputedStyle(tela) : null;
+    return {
+      larguraForm: estilos ? parseInt(estilos.getPropertyValue('--livro-azul-largura'), 10) || 500 : 500,
+      larguraLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-maxima'), 10) || 450 : 450,
+      larguraLegendaMin: estilos ? parseInt(estilos.getPropertyValue('--legenda-largura-minima'), 10) || 300 : 300,
+      viewportLegendaMax: estilos ? parseInt(estilos.getPropertyValue('--legenda-viewport-largura'), 10) || 1080 : 1080,
+      gap: estilos ? parseInt(estilos.getPropertyValue('--legenda-gap'), 10) || 24 : 24,
+      margemLateral: 16
+    };
+  }
+
+  function limparEstilosLayoutLegendaAzul(shell, painel) {
+    painel.style.width = '';
+    painel.style.flexBasis = '';
+    painel.style.right = '';
+    painel.style.left = '';
+  }
+
+  function empilharLegendaAzul(shell, painel) {
+    shell.classList.remove('livro-azul-shell--lateral');
+    shell.classList.add('livro-azul-shell--empilhado');
+    painel.classList.remove('livro-azul-legenda--lateral');
+    painel.classList.add('livro-azul-legenda--empilhada');
+    limparEstilosLayoutLegendaAzul(shell, painel);
+  }
+
+  function calcularLarguraLegendaAzul(cfg, viewport, bordaDireitaForm) {
+    const espacoDisponivel = viewport - bordaDireitaForm - cfg.gap;
+    if (espacoDisponivel < cfg.larguraLegendaMin) return null;
+    return Math.min(cfg.larguraLegendaMax, Math.floor(espacoDisponivel));
+  }
+
+  function ajustarLayoutLegendaAzul() {
+    const tela = document.getElementById('telaLivroAzul');
+    const shell = document.getElementById('livroAzulShell');
+    const centro = document.getElementById('livroAzulCentro');
+    const painel = document.getElementById('livroAzulLegenda');
+    if (!tela || !shell || !centro || !painel || tela.style.display === 'none') return;
+
+    const cfg = obterConfigLayoutLegendaAzul();
+    const viewport = document.documentElement.clientWidth;
+
+    limparEstilosLayoutLegendaAzul(shell, painel);
+    shell.classList.add('livro-azul-shell--lateral');
+    shell.classList.remove('livro-azul-shell--empilhado');
+    painel.classList.add('livro-azul-legenda--lateral');
+    painel.classList.remove('livro-azul-legenda--empilhada');
+
+    const bordaDireitaForm = centro.getBoundingClientRect().right;
+    const larguraLegenda = calcularLarguraLegendaAzul(cfg, viewport, bordaDireitaForm);
+
+    if (larguraLegenda === null) {
+      empilharLegendaAzul(shell, painel);
+      return;
+    }
+
+    painel.style.width = larguraLegenda + 'px';
+    painel.style.right = '0';
+    painel.style.left = 'auto';
+
+    const inicioLegenda = painel.getBoundingClientRect().left;
+    if (inicioLegenda < bordaDireitaForm + cfg.gap - 0.5) {
+      empilharLegendaAzul(shell, painel);
+    }
+  }
+
+  function iniciarObservadorLayoutLegendaAzul() {
+    if (LAYOUT_LEGENDA_AZUL.resizeRegistrado) return;
+    LAYOUT_LEGENDA_AZUL.resizeRegistrado = true;
+    window.addEventListener('resize', ajustarLayoutLegendaAzul);
+
+    const centro = document.getElementById('livroAzulCentro');
+    if (centro && window.ResizeObserver) {
+      LAYOUT_LEGENDA_AZUL.observer = new ResizeObserver(ajustarLayoutLegendaAzul);
+      LAYOUT_LEGENDA_AZUL.observer.observe(centro);
+    }
+  }
+
+  function agendarAjusteLayoutLegendaAzul() {
+    requestAnimationFrame(function() {
+      ajustarLayoutLegendaAzul();
+      requestAnimationFrame(ajustarLayoutLegendaAzul);
+    });
+  }
+
+  iniciarObservadorLayoutLegendaAzul();
+
   registrarLivro({
     aba: 'Livro Azul - Sintomático Respiratório',
     idCpf: 'azul_cpf',

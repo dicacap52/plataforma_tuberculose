@@ -48,10 +48,27 @@
     function garantirCpfEditavel(valor) {
       const campo = el(cfg.idCpf);
       if (!campo) return;
-      if (valor !== undefined) campo.value = valor;
+      if (valor !== undefined) {
+        campo.value = String(valor).replace(/\D/g, '').slice(0, 11);
+      }
       campo.disabled = false;
       campo.readOnly = false;
       campo.classList.remove('campo-bloqueado');
+    }
+
+    function configurarCampoCpf(campo) {
+      campo.setAttribute('maxlength', '11');
+      campo.setAttribute('inputmode', 'numeric');
+      campo.setAttribute('autocomplete', 'off');
+    }
+
+    function sanitizarEntradaCpf(campo) {
+      const valorAnterior = campo.value;
+      const tinhaInvalido = /\D/.test(valorAnterior);
+      const valorLimpo = valorAnterior.replace(/\D/g, '').slice(0, 11);
+      if (valorAnterior !== valorLimpo) campo.value = valorLimpo;
+      if (tinhaInvalido) mostrarMsg('Só é aceito números no campo CPF.', 'erro');
+      return valorLimpo;
     }
 
     function campoDeveBloquear(c, preenchidos, modo) {
@@ -358,8 +375,9 @@
 
     const campoCpf = el(cfg.idCpf);
     if (campoCpf) {
+      configurarCampoCpf(campoCpf);
       campoCpf.addEventListener('input', function() {
-        const atual = campoCpf.value.replace(/\D/g, '');
+        const atual = sanitizarEntradaCpf(campoCpf);
         if (!state.cpfValidado || !state.cpfAtual || atual === state.cpfAtual) return;
 
         const modoAnterior = state.modo;

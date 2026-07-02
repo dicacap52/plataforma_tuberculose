@@ -1,82 +1,323 @@
-<div id="telaLivroVerde" style="display:none; padding: 20px; max-width: 500px; margin: auto;">
+<div id="telaLivroVerde" class="tela-livro-verde" style="display:none;">
 
-  <div style="margin-bottom: 16px;">
-    <button onclick="voltarAoDashboard()" style="background:none; border:none; color:#154c79; font-size:14px; font-weight:600; cursor:pointer; padding:0; display:flex; align-items:center; gap:6px;">
-      ← Voltar ao Dashboard
-    </button>
+  <div id="livroVerdeShell" class="livro-verde-shell">
+    <div id="livroVerdeCentro" class="livro-verde-centro">
+      <div class="livro-verde-topo">
+        <button type="button" class="btn-voltar-livro" onclick="voltarAoDashboard()">← Voltar ao Dashboard</button>
+      </div>
+
+      <div id="livroVerdeFormulario" class="livro-verde-formulario">
+      <div class="livro-verde-cabecalho">
+        <h2>Livro Verde - Tratamento</h2>
+      </div>
+
+      <div class="livro-verde-corpo">
+        <h4 class="secao-titulo-verde">Identificação</h4>
+
+        <label for="cpf" class="form-label">CPF *</label>
+        <input type="text" id="cpf" placeholder="Digite o CPF e pressione Enter ou saia do campo" class="form-input"
+          maxlength="11" inputmode="numeric" autocomplete="off"
+          onblur="buscarCpfLivroVerde()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarCpfLivroVerde(true);}">
+
+        <label for="sinan" class="form-label">Nº do SINAN</label>
+        <input type="text" id="sinan" placeholder="Nº do SINAN" class="form-input campo-livro-verde" disabled>
+
+        <label for="prontuario" class="form-label">Nº do Prontuário</label>
+        <input type="text" id="prontuario" placeholder="Nº do Prontuário" class="form-input campo-livro-verde" disabled>
+
+        <input type="text"   id="nomePaciente" placeholder="Nome do Paciente"  class="form-input campo-livro-verde" disabled>
+        <input type="number" id="idade"        placeholder="Idade"             class="form-input campo-livro-verde" disabled>
+        <select id="sexo" class="form-input campo-livro-verde" disabled>
+          <option value="">Sexo</option>
+          <option value="M">Masculino</option>
+          <option value="F">Feminino</option>
+        </select>
+
+        <p id="msgBusca" class="feedback-msg" style="display:none; margin-top:12px;"></p>
+
+        <h4 class="secao-titulo-verde">Diagnóstico e Exames</h4>
+        <select id="bac1" class="form-input campo-livro-verde" disabled>
+          <option value="">Baciloscopia 1º</option>
+          <option value="Detectável">Detectável</option>
+          <option value="Não detectável">Não detectável</option>
+        </select>
+        <select id="trm" class="form-input campo-livro-verde" disabled>
+          <option value="">TRM-TB</option>
+          <option value="SR">SR</option>
+          <option value="RR">RR</option>
+          <option value="ND">ND</option>
+          <option value="DI">DI</option>
+          <option value="MTB">MTB</option>
+          <option value="N/Re">N/Re</option>
+        </select>
+        <input type="text" id="cultura"   placeholder="Cultura"              class="form-input campo-livro-verde" disabled>
+        <input type="text" id="culturaTS" placeholder="Cultura TS"           class="form-input campo-livro-verde" disabled>
+        <select id="rx" class="form-input campo-livro-verde" disabled>
+          <option value="">Radiografia do tórax</option>
+          <option value="N">N</option>
+          <option value="Sug">Sug</option>
+          <option value="Seq">Seq</option>
+          <option value="OP">OP</option>
+          <option value="NR">NR</option>
+        </select>
+        <select id="hiv" class="form-input campo-livro-verde" disabled>
+          <option value="">Teste HIV</option>
+          <option value="Positivo">Positivo</option>
+          <option value="Negativo">Negativo</option>
+          <option value="Não Realizado">Não Realizado</option>
+        </select>
+
+        <h4 class="secao-titulo-verde">Tratamento</h4>
+
+        <label for="formaClinicaTipo" class="form-label">Forma clínica</label>
+        <select id="formaClinicaTipo" class="form-input campo-livro-verde" disabled onchange="atualizarCamposFormaClinica()">
+          <option value="">Selecione...</option>
+          <option value="pulmonar">Pulmonar</option>
+          <option value="extrapulmonar">Extrapulmonar</option>
+          <option value="ambos">Pulmonar + Extrapulmonar</option>
+        </select>
+
+        <div id="formaClinicaCampoPulmonar" class="forma-clinica-subcampo" style="display:none;">
+          <label for="formaClinicaPulmonar" class="form-label">Pulmonar</label>
+          <select id="formaClinicaPulmonar" class="form-input campo-livro-verde" disabled>
+            <option value="">Selecione...</option>
+            <option value="P+">P+</option>
+            <option value="P-">P-</option>
+            <option value="P">P</option>
+          </select>
+        </div>
+
+        <div id="formaClinicaCampoExtrapulmonar" class="forma-clinica-subcampo" style="display:none;">
+          <label for="formaClinicaExtrapulmonar" class="form-label">Extrapulmonar</label>
+          <select id="formaClinicaExtrapulmonar" class="form-input campo-livro-verde" disabled>
+            <option value="">Selecione...</option>
+            <option value="PL">PL</option>
+            <option value="Oa">Oa</option>
+            <option value="Gu">Gu</option>
+            <option value="Mi">Mi</option>
+            <option value="Gp">Gp</option>
+            <option value="Oc">Oc</option>
+            <option value="Me">Me</option>
+            <option value="O">O</option>
+          </select>
+        </div>
+
+        <label for="tipoEntrada" class="form-label">Tipo de entrada</label>
+        <select id="tipoEntrada" class="form-input campo-livro-verde" disabled>
+          <option value="">Selecione...</option>
+          <option value="CN">CN</option>
+          <option value="RR">RR</option>
+          <option value="RA">RA</option>
+          <option value="RF">RF</option>
+        </select>
+
+        <label for="esquema" class="form-label">Esquema de tratamento</label>
+        <select id="esquema" class="form-input campo-livro-verde" disabled>
+          <option value="">Selecione...</option>
+          <option value="I">I</option>
+          <option value="II">II</option>
+          <option value="IR">IR</option>
+          <option value="III">III</option>
+          <option value="EE">EE</option>
+        </select>
+
+        <input type="date" id="dataInicio"                                         class="form-input campo-livro-verde" disabled>
+        <select id="tdo" class="form-input campo-livro-verde" disabled>
+          <option value="">TDO</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+        <select id="tarv" class="form-input campo-livro-verde" disabled>
+          <option value="">TARV</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+
+        <h4 class="secao-titulo-verde">Acompanhamento Mensal</h4>
+        <div id="containerMeses"></div>
+
+        <h4 class="secao-titulo-verde">Encerramento</h4>
+        <select id="motivoEnc" class="form-input campo-livro-verde" disabled>
+          <option value="">Motivo do encerramento</option>
+          <option value="Cura">Cura</option>
+          <option value="Abandono">Abandono</option>
+          <option value="Óbito por TB">Óbito por TB</option>
+          <option value="Óbito por outras causas">Óbito por outras causas</option>
+          <option value="Transferência">Transferência</option>
+        </select>
+        <input type="date"   id="dataEnc"                                              class="form-input campo-livro-verde" disabled>
+        <input type="number" id="contIdent" placeholder="Nº contatos identificados"  class="form-input campo-livro-verde" disabled>
+        <input type="number" id="contExam"  placeholder="Nº contatos examinados"     class="form-input campo-livro-verde" disabled>
+        <textarea            id="obs"       placeholder="Observações"                 class="form-input campo-livro-verde" rows="4" disabled></textarea>
+
+        <button id="btnSalvarLivroVerde" type="button" onclick="salvarLivroVerde()" disabled class="btn-salvar-livro-verde">
+          SALVAR REGISTRO
+        </button>
+      </div>
+    </div>
+    </div>
+
+    <aside id="livroVerdeLegenda" class="livro-verde-legenda" aria-label="Legenda para preenchimento do Livro">
+      <div class="legenda-cabecalho">
+        <h3>Legenda para preenchimento do Livro</h3>
+      </div>
+
+      <div class="legenda-conteudo">
+
+        <section class="legenda-secao">
+          <h4>Forma Clínica</h4>
+          <p class="legenda-subtitulo">Pulmonar</p>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">P+</span> tuberculose pulmonar positiva</li>
+            <li><span class="codigo">P−</span> tuberculose pulmonar negativa</li>
+            <li><span class="codigo">P</span> quando não realizada a baciloscopia</li>
+          </ul>
+          <p class="legenda-subtitulo">Extrapulmonar</p>
+          <p>Assinalar a localização conforme categorização do Sinan e Guia de Vigilância Epidemiológica — Tuberculose — Funasa/MS (2002):</p>
+          <ul class="legenda-codigos legenda-codigos-grid">
+            <li><span class="codigo">PL</span> pleural</li>
+            <li><span class="codigo">Gp</span> ganglionar periférica</li>
+            <li><span class="codigo">Oa</span> osteoarticular</li>
+            <li><span class="codigo">Oc</span> ocular</li>
+            <li><span class="codigo">Gu</span> gênito-urinária</li>
+            <li><span class="codigo">Me</span> meningite</li>
+            <li><span class="codigo">Mi</span> miliar</li>
+            <li><span class="codigo">O</span> outras localizações</li>
+          </ul>
+        </section>
+        
+        <section class="legenda-secao">
+          <h4>Teste Molecular Rápido TB - (TRM-TB)</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-codigos-grid">
+            <li><span class="codigo">SR</span>para detectável sensível à rifampicina.</li>
+            <li><span class="codigo">RR</span>para detectável resistente à rifampicina.</li>
+            <li><span class="codigo">ND</span>para não detectável.</li>
+            <li><span class="codigo">DI</span>para detectável indeterminado (inconclusivo).</li>
+            <li><span class="codigo">MTB</span>para MTB detectado - Traços.</li>
+            <li><span class="codigo">N/Re</span>para não realizado.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Radiografia do tórax</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">N</span> para aspecto normal.</li>
+            <li><span class="codigo">Sug</span> para imagem sugestiva de TB.</li>
+            <li><span class="codigo">Seq</span> para sequela, quando houver imagem sugestiva de lesão cicatricial.</li>
+            <li><span class="codigo">OP</span> para imagem sugestiva de outra patologia não tuberculosa.</li>
+            <li><span class="codigo">NR</span> para não realizada.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Teste HIV</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos legenda-opcoes-texto">
+            <li><span class="codigo">Positivo</span>para teste rápido positivo.</li>
+            <li><span class="codigo">Negativo</span>para teste rápido negativo.</li>
+            <li><span class="codigo">Não realizado</span>para quando o teste rápido não foi realizado.</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Tipo de Entrada</h4>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">CN</span> caso novo</li>
+            <li><span class="codigo">RR</span> retratamento por recidiva</li>
+            <li><span class="codigo">RA</span> retorno após abandono</li>
+            <li><span class="codigo">RF</span> retratamento nos casos de falência</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Tratamento</h4>
+          <p class="legenda-subtitulo">Esquema</p>
+          <p class="legenda-registrar">Registrar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">I</span> casos novos de tuberculose pulmonar e extrapulmonar</li>
+            <li><span class="codigo">II</span> forma meningoencefálica</li>
+            <li><span class="codigo">IR</span> retratamento por recidiva ou retorno após abandono do Esquema I</li>
+            <li><span class="codigo">III</span> falência aos esquemas I e IR</li>
+            <li><span class="codigo">EE</span> esquemas especiais</li>
+          </ul>
+          <p class="legenda-subtitulo">Data de início</p>
+          <p>Registrar a data do início do tratamento (dia, mês e ano). Em caso de paciente transferido, registra-se a data do início do tratamento na unidade de origem.</p>
+          <p class="legenda-subtitulo">Forma de tratamento (Forma de trat.)</p>
+          <p class="legenda-registrar">Assinalar:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">S</span> tratamento supervisionado</li>
+            <li><span class="codigo">A</span> auto-administrado</li>
+          </ul>
+          <p class="legenda-nota">Considera-se tratamento supervisionado quando a observação da tomada dos medicamentos for realizada pelo menos três vezes por semana, na primeira fase, e duas vezes por semana na segunda fase (segundo as normas do Ministério da Saúde).</p>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Baciloscopia de Acompanhamento</h4>
+          <p class="legenda-subtitulo">Mês</p>
+          <p>Registrar o resultado na coluna correspondente ao mês de tratamento em que o exame foi realizado. Transcrever o resultado da baciloscopia de acordo com o seguinte critério:</p>
+          <ul class="legenda-codigos">
+            <li><span class="codigo">+, ++, +++</span> para os positivos</li>
+            <li><span class="codigo">NEG</span> para os negativos</li>
+            <li><span class="codigo">N/Re</span> quando não realizada</li>
+          </ul>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Situação de Encerramento</h4>
+          <p class="legenda-subtitulo">Motivo</p>
+          <dl class="legenda-definicoes">
+            <dt>Cura</dt>
+            <dd>Será dada a alta por cura quando os pacientes pulmonares, inicialmente positivos, apresentarem, durante o tratamento, pelo menos duas baciloscopias negativas: uma na fase de acompanhamento e outra no final do tratamento.</dd>
+            <dt>Completou o tratamento (CT)</dt>
+            <dd>Será dada alta após completar o tratamento com base em critérios clínicos e radiológicos:
+              <ul>
+                <li>quando o paciente não tiver realizado o exame de escarro por ausência de expectoração e tiver alta com base em dados clínicos e exames complementares;</li>
+                <li>nos casos de tuberculose pulmonar inicialmente negativos;</li>
+                <li>nos casos de tuberculose extrapulmonares.</li>
+              </ul>
+            </dd>
+            <dt>Êxito do tratamento (Ex. trat.)</dt>
+            <dd>É a soma dos casos de cura mais os casos que completaram o tratamento.</dd>
+            <dt>Abandono (Aband.)</dt>
+            <dd>Será dado ao doente que deixou de comparecer à unidade por mais de 30 dias consecutivos, após a data prevista para seu retorno. Nos casos de tratamento supervisionado, o prazo de 30 dias é contado a partir da última tomada da droga.</dd>
+            <dt>Transferência (Transf.)</dt>
+            <dd>Será dada quando o doente for transferido para outro serviço de saúde. A transferência deve ser efetuada por documento específico com informações sobre o diagnóstico e o tratamento realizado até aquele momento. Deve-se buscar a confirmação de que o paciente compareceu à unidade de saúde para a qual foi transferido, bem como o resultado do tratamento no momento da avaliação de coorte. Deverá ser assinalado no campo Observações se a transferência é para o mesmo município (outra unidade de saúde), para outro município (mesma UF), para outro estado ou para outro país.</dd>
+            <dt>Óbito</dt>
+            <dd>Será dado por ocasião do conhecimento da morte do paciente durante o tratamento. Deverá ser assinalado no campo Observações se o óbito ocorreu por tuberculose ou por outras causas.</dd>
+            <dt>Falência (Fal.)</dt>
+            <dd>Será dada quando houver persistência da positividade do escarro ao final do tratamento. São também classificados como falência os doentes que no início do tratamento são fortemente positivos (++ ou +++) e mantêm essa situação até o quarto mês, ou aqueles com positividade inicial seguida de negativação e nova positividade por dois meses consecutivos, a partir do quarto mês de tratamento.</dd>
+            <dt>Mudança de Diagnóstico (M. Diag.)</dt>
+            <dd>Será dada quando for constatado erro de diagnóstico de tuberculose.</dd>
+          </dl>
+          <p class="legenda-subtitulo">Data</p>
+          <p>Registrar a data do encerramento (dia, mês e ano).</p>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Número de Contatos</h4>
+          <dl class="legenda-definicoes">
+            <dt>Registrados (Reg.)</dt>
+            <dd>Anotar o número total de pessoas que coabitam com um paciente com tuberculose. Esta informação deve ser solicitada e registrada no momento da primeira consulta.</dd>
+            <dt>Examinados (Exam.)</dt>
+            <dd>Anotar o número de pessoas que coabitam com um paciente com tuberculose que foram examinadas na unidade de saúde, segundo as normas do Ministério da Saúde.</dd>
+          </dl>
+        </section>
+
+        <section class="legenda-secao">
+          <h4>Observações</h4>
+          <p>Registrar ocorrências não especificadas, como: intolerância medicamentosa, interrupção do tratamento por irregularidade (justificar), hospitalização, resultado de RX para encerramento do caso, data da mudança de esquema terapêutico, toxicidade ou falência, se o paciente é institucionalizado (presídio, asilo, orfanato, hospital psiquiátrico ou outro), informação de agravos associados e outras situações não constantes na planilha.</p>
+        </section>
+
+      </div>
+    </aside>
+
   </div>
 
-  <div style="background-color: #5CE65C; padding: 15px; border-radius: 10px 10px 0 0; text-align: center;">
-    <h2 style="color: #064E3B;">Livro Verde - Tratamento</h2>
-  </div>
-
-  <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-
-    <h4 style="margin-bottom:10px; color:#5CE65C;">Identificação</h4>
-
-    <label for="cpf" style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">CPF *</label>
-    <input type="text" id="cpf" placeholder="Digite o CPF e pressione Enter ou saia do campo" class="form-input"
-      onblur="buscarCpfLivroVerde()"
-      onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarCpfLivroVerde(true);}">
-
-    <label for="sinan" style="display:block; font-size:13px; font-weight:600; color:#334155; margin:10px 0 6px;">Nº do SINAN</label>
-    <input type="text" id="sinan" placeholder="Nº do SINAN" class="form-input campo-livro-verde" disabled>
-
-    <label for="prontuario" style="display:block; font-size:13px; font-weight:600; color:#334155; margin:10px 0 6px;">Nº do Prontuário</label>
-    <input type="text" id="prontuario" placeholder="Nº do Prontuário" class="form-input campo-livro-verde" disabled>
-
-    <input type="text"   id="nomePaciente" placeholder="Nome do Paciente"  class="form-input campo-livro-verde" disabled>
-    <input type="number" id="idade"        placeholder="Idade"             class="form-input campo-livro-verde" disabled>
-    <select id="sexo" class="form-input campo-livro-verde" disabled>
-      <option value="">Sexo</option>
-      <option value="M">Masculino</option>
-      <option value="F">Feminino</option>
-    </select>
-
-    <p id="msgBusca" class="feedback-msg" style="display:none; margin-top:12px;"></p>
-
-    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Diagnóstico e Exames</h4>
-    <input type="text" id="bac1"      placeholder="Baciloscopia 1º"      class="form-input campo-livro-verde" disabled>
-    <input type="text" id="bac2"      placeholder="Baciloscopia 2º"      class="form-input campo-livro-verde" disabled>
-    <input type="text" id="trm"       placeholder="TRM-TB"               class="form-input campo-livro-verde" disabled>
-    <input type="text" id="cultura"   placeholder="Cultura"              class="form-input campo-livro-verde" disabled>
-    <input type="text" id="culturaTS" placeholder="Cultura TS"           class="form-input campo-livro-verde" disabled>
-    <input type="text" id="rx"        placeholder="Radiografia do tórax" class="form-input campo-livro-verde" disabled>
-    <input type="text" id="hiv"       placeholder="Teste HIV"            class="form-input campo-livro-verde" disabled>
-
-    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Tratamento</h4>
-    <input type="text" id="formaClinica" placeholder="Forma clínica"          class="form-input campo-livro-verde" disabled>
-    <input type="text" id="tipoEntrada"  placeholder="Tipo de entrada"        class="form-input campo-livro-verde" disabled>
-    <input type="text" id="esquema"      placeholder="Esquema de tratamento"  class="form-input campo-livro-verde" disabled>
-    <input type="date" id="dataInicio"                                         class="form-input campo-livro-verde" disabled>
-    <input type="text" id="tdo"          placeholder="TDO"                    class="form-input campo-livro-verde" disabled>
-    <input type="text" id="tarv"         placeholder="TARV"                   class="form-input campo-livro-verde" disabled>
-
-    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Acompanhamento Mensal</h4>
-    <div id="containerMeses"></div>
-
-    <h4 style="margin-top:20px; margin-bottom:10px; color:#5CE65C;">Encerramento</h4>
-    <select id="motivoEnc" class="form-input campo-livro-verde" disabled>
-      <option value="">Motivo do encerramento</option>
-      <option value="Cura">Cura</option>
-      <option value="Abandono">Abandono</option>
-      <option value="Óbito por TB">Óbito por TB</option>
-      <option value="Óbito por outras causas">Óbito por outras causas</option>
-      <option value="Transferência">Transferência</option>
-    </select>
-    <input type="date"   id="dataEnc"                                              class="form-input campo-livro-verde" disabled>
-    <input type="number" id="contIdent" placeholder="Nº contatos identificados"  class="form-input campo-livro-verde" disabled>
-    <input type="number" id="contExam"  placeholder="Nº contatos examinados"     class="form-input campo-livro-verde" disabled>
-    <textarea            id="obs"       placeholder="Observações"                 class="form-input campo-livro-verde" rows="4" disabled></textarea>
-
-    <button id="btnSalvarLivroVerde" onclick="salvarLivroVerde()" disabled
-      style="width:100%; padding:15px; background:#5CE65C; border:none; border-radius:5px; margin-top:20px; font-weight:bold; font-size:15px; cursor:pointer; color:#064E3B;">
-      SALVAR REGISTRO
-    </button>
-
-  </div>
-
-  <!-- Modal -->
   <div id="modalSucessoLivroVerde" class="modal-overlay-livro-verde" style="display:none;">
     <div class="modal-box-livro-verde">
       <p id="modalSucessoTitulo" class="modal-titulo-livro-verde">Registro atualizado com sucesso</p>
